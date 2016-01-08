@@ -1,0 +1,4 @@
+# Service file: /usr/share/dbus-1/services/test.service
+[D-BUS Service]
+Name=org.freedesktop.container
+Exec="/usr/local/bin/gdocker_daemon.py" 
