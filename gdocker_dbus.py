@@ -25,12 +25,16 @@ proxy.connect_to_signal("state_change", handler, dbus_interface="org.freedesktop
 
 #~ bus.add_signal_receiver(handler, dbus_interface = "org.freedesktop.container")
 
+def handler(self, *msg):
+    print msg
 
 
 #~ interface.connect_to_signal("state_change", handler, sender_keyword='sender')
 
-print interface.container_stop('c8ba2c6c41a86147eaad3a1959f84e19cdf3b7c520e2cb596782165331be3978')
-print interface.container_status('c8ba2c6c41a86147eaad3a1959f84e19cdf3b7c520e2cb596782165331be3978')
+print interface.container_stop('c8ba2c6c41a86147eaad3a1959f84e19cdf3b7c520e2cb596782165331be3978', reply_handler=handler, error_handler=handler)
+print interface.container_status('c8ba2c6c41a86147eaad3a1959f84e19cdf3b7c520e2cb596782165331be3978', reply_handler=handler, error_handler=handler)
+print interface.container_start('c8ba2c6c41a86147eaad3a1959f84e19cdf3b7c520e2cb596782165331be3978', reply_handler=handler, error_handler=handler)
+print 'finish'
 #~ print interface.container_start('c8ba2c6c41a86147eaad3a1959f84e19cdf3b7c520e2cb596782165331be3978')
 print proxy.get_dbus_method('container_stop', 'org.freedesktop.container.start')
 

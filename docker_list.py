@@ -46,6 +46,23 @@ def get_container_name(container_id):
     container_info = docker_client.inspect_container(container)
     return container_info['Name']
 
+def get_container_forwards(container_info):
+    ports = []
+    ports_forwarded = ''
+    
+    localhost = '127.0.0.1'
+    dockerhost = container_info['NetworkSettings']['IPAddress']
+    
+    for port in container_info['NetworkSettings']['Ports'].keys():
+        ports = ''.join([l for l in port if l.isdigit()])
+        if container_info['NetworkSettings']['Ports'].get(port):
+            if port == '5900/tcp': #  vnc 
+                yield 'vnc://%s:%s' % (localhost, container_info['NetworkSettings']['Ports'][port][0].get('HostPort'))
+            if port == '443/tcp': #  https
+                yield 'https://%s:%s' % (container_info['NetworkSettings']['IPAddress'], container_info['NetworkSettings']['Ports'][port][0].get('HostPort'))
+            #  default to http
+            yield 'http://%s:%s' % (container_info['NetworkSettings']['IPAddress'], container_info['NetworkSettings']['Ports'][port][0].get('HostPort'))
+    #~ return ports_forwarded
 
 class application_gui:
     """Tutorial 13 custom treeview list boxes"""
@@ -98,8 +115,14 @@ class application_gui:
 
         for container in get_containers(filter=filter_string):
             container_info = docker_client.inspect_container(container['Id'])
+            link = None
+            ports = [port for port in get_container_forwards(container_info)]
+            if ports:
+                print link
+                link = ports[0]
+            
             #~ menu_container = gtk.MenuItem(container_info['Name'])
-            self.listbox.model_append(container, '', container_info['Name'], 'test', 'link')
+            self.listbox.model_append(container, '', container_info['Name'], 'test', link)
 
     def closeFetcher(self, widget):
         self.window.hide()
@@ -134,19 +157,22 @@ class ListBoxSelect:
         items['row'] = Gtk.ListBoxRow()
         items['row'].set_name(container.get('Id'))
         items['vbox'] = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        items['label1'] = Gtk.Label('%s [%s]' % (title, container.get('Status')), xalign=0)
-        items['label2'] = Gtk.Label(link, xalign=0)
         
+        items['label1'] = Gtk.Label('%s [%s]' % (title, container.get('Status')), xalign=0)
+        items['vbox'].pack_start(items['label1'], True, False, 0)
+        
+        if link:
+            items['label2'] = Gtk.LinkButton(uri=link, label=link, xalign=0)
+            items['vbox'].pack_start(items['label2'], True, False, 0)
         #~ items['progress'] = Gtk.ProgressBar()
         #~ items['progress'].hide()
         #~ items['progress'].set_fraction(0) 
-        
-        items['vbox'].pack_start(items['label1'], True, False, 0)
-        items['vbox'].pack_start(items['label2'], True, False, 0)
+
+        #~ items['vbox'].pack_start(items['label2'], True, False, 0)
         #~ items['vbox'].pack_start(items['progress'], False, False, 0)
 
         items['hbox'] = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-        items['image'] = Gtk.Image.new_from_icon_name('computer-fail' if self.is_container_running(container) else 'computer', 32)
+        items['image'] = Gtk.Image.new_from_icon_name('computer-fail' if self.is_container_running(container) else 'computer', 48)
         items['switch'] = Gtk.Switch()#label="Start/Stop"
         items['switch'].set_active(False if 'Exited' in container.get('Status') else True)
         items['switch'].connect('state-set', self.container_toggle_status, container)
@@ -194,7 +220,6 @@ class ListBoxSelect:
         self.gui_rows[container_id]['row'].set_sensitive(True)
 
     def container_change_status(self, container, state):
-        
         if state is False:
             print 'stopping'
             container_iface.container_stop(container.get('Id'), reply_handler=self.container_state_change, error_handler=self.container_state_change)
