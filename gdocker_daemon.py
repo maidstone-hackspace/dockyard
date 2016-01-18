@@ -3,14 +3,17 @@
 # It works with both Python2 and Python3
 import datetime
 import sys
-import time
-from gi.repository import GLib, GObject
+from gi.repository import GLib
+import threading
 import dbus
+import json 
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
 
 from docker import Client
 docker_client = Client(base_url='unix://var/run/docker.sock')
+
+
 
 
 def get_containers(filter=None):
@@ -52,7 +55,7 @@ class ContainerService(dbus.service.Object):
     #, reply_handler=handler, error_handler=handler
     @dbus.service.method(dbus_interface='org.freedesktop.container', in_signature='s', out_signature='s')
     def container_stop(self, container_id):
-        print "\ntop container %s" % container_id
+        print "\nstop container %s" % container_id
         docker_client.stop(container_id)
         #~ self.tmp_list()
         #~ self.state_change('stop')
@@ -75,11 +78,11 @@ class ContainerService(dbus.service.Object):
         #~ self.state_change('start')
         return container_id
 
-    @dbus.service.signal(dbus_interface='org.freedesktop.container')
+    @dbus.service.signal(dbus_interface='org.freedesktop.container', signature='ss')
     def state_change(self, container_id, state):
         print 'emit signal'
         #~ print "%d bottles of %s on the wall" % (number, contents)
-        return 'something changed %s' % test
+        return 'something changed %s %s' % (container_id, state)
 
     #~ @dbus.service.method(dbus_interface='org.freedesktop.container', in_signature='s', out_signature='s')
     #~ def container_run_tty(self, container_id, run):
@@ -89,18 +92,22 @@ class ContainerService(dbus.service.Object):
     def container_logs(self, container_id):
         return str(self.is_container_running(container_id))
 
-    def live_events(self):
-        if self.live_events is None:
-            now = datetime.datetime.now()
-            since = now #- datetime.timedelta(seconds=10)
-            self.live_event = docker_client.events(since=since, stream=True)
-        print self.live_events
-        return next(self.live_events)
-        #~ print 'get events'
-        #~ for event in docker_client.events(since=since):
-            #~ if event.get('status') == 'start':
-                #~ self.state_change(event.get('id'),'start')
 
+class DockerEventsThread(threading.Thread):
+    # TODO look for a better way asyncio perhaps ?
+    def __init__(self, service):
+        self.service = service
+        threading.Thread.__init__(self)
+
+    def run(self):
+        now = datetime.datetime.now()
+        since = now
+        live_events = docker_client.events(since=since)
+        while True:
+            container = next(live_events)
+            container = json.loads(container)
+            if container.get('status') in ('start', 'stop', 'create'):
+                self.service.state_change(str(container.get('Id')), str(container.get('status')))
 
 
 #~ c8ba2c6c41a86147eaad3a1959f84e19cdf3b7c520e2cb596782165331be3978
@@ -114,9 +121,17 @@ DBusGMainLoop(set_as_default=True)
 myservice = ContainerService()
 time_in_ms = 120
 #~ GObject.timeout_add(time_in_ms, myservice.live_events)
+e = DockerEventsThread(myservice)
+e.start()
+
+now = datetime.datetime.now()
+since = now #- datetime.timedelta(seconds=10)
+live_events = docker_client.events(since=since)
+#~ GObject.io_add_watch (live_events, GObject.IO_IN, myservice.live_events)
 
 try:
     GLib.MainLoop().run()
 except KeyboardInterrupt:
     print 'got SIGTERM'
+    #~ e.finish()
     sys.exit(0)
