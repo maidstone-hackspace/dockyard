@@ -16,16 +16,8 @@ gi.require_version('Gtk', '3.0')
 gi.require_version('AppIndicator3', '0.1')
 from gi.repository import Gtk, GLib, Gdk, GdkPixbuf
 
-import gdocker_logs
-
-import dbus
-import dbus.service
-from dbus.mainloop.glib import DBusGMainLoop
-
 from libs.docker_helper import get_containers, get_container, get_container_name, get_container_forwards, get_container_info
 from libs.listbox_rows import ListBoxSelect
-DBusGMainLoop(set_as_default=True)
-
 
 
 class application_gui:
@@ -40,7 +32,7 @@ class application_gui:
         xml.add_from_file('gdocker.glade')
 
         #grab our widget using get_object this is the name of the widget from glade, window1 is the default name
-        self.window = xml.get_object('winFetcher')
+        self.window = xml.get_object('root_window')
 
         #load our widgets from the glade file
         self.widgets = {}
@@ -49,12 +41,13 @@ class application_gui:
         self.widgets['listbox'] = xml.get_object('listbox1')
         self.widgets['progress'] = xml.get_object('listProgress')
         self.widgets['refresh'] = xml.get_object('btnRefresh')
+        self.widgets['message_dialog'] = xml.get_object('dialog_confirm')
         self.widgets['refresh'].connect('button_press_event', self.refresh_list)
         self.widgets['close'] = xml.get_object('btnClose')
         self.widgets['close'].connect('button_press_event', self.closeFetcher)
 
         #wrap the listbox so we can reuse the code, pass in the listbox widget to our wrapper class
-        self.listbox = ListBoxSelect(self.widgets['listbox'])
+        self.listbox = ListBoxSelect(self.widgets['listbox'], self.widgets['message_dialog'])
 
         #connect to events, in this instance just quit our application
         self.window.connect('delete_event', Gtk.main_quit)
@@ -80,7 +73,7 @@ class application_gui:
         self.listbox.clear()
 
         for container in get_containers(filter=filter_string):
-            print container['Id']
+            #~ print container['Id']
             container_info = get_container_info(container['Id'])
             #~ container_info = docker_client.inspect_container(container['Id'])
             #~ menu_container = gtk.MenuItem(container_info['Name'])

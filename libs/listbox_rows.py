@@ -22,15 +22,15 @@ import dbus
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
 
-from libs.docker_helper import get_containers, get_container, get_container_name, get_container_forwards
+from libs.docker_helper import get_containers, get_container, get_container_name, get_container_forwards, container_iface, container_proxy
 
-DBusGMainLoop(set_as_default=True)
-#TODO look into GDBus instead of dbus
+#~ DBusGMainLoop(set_as_default=True)
+#~ #TODO look into GDBus instead of dbus
 
-bus = dbus.SessionBus()
-container_proxy = bus.get_object('org.freedesktop.container', '/org/freedesktop/container')
-container_iface = dbus.Interface(container_proxy, dbus_interface='org.freedesktop.container')
-app_name = "Docker"
+#~ bus = dbus.SessionBus()
+#~ container_proxy = bus.get_object('org.freedesktop.container', '/org/freedesktop/container')
+#~ container_iface = dbus.Interface(container_proxy, dbus_interface='org.freedesktop.container')
+#~ app_name = "Docker"
 
 
 class ListBoxSelect:
@@ -38,11 +38,22 @@ class ListBoxSelect:
     listbox = None
     gui_rows = {}  # store widgets here so we can destroy them later.
 
-    def __init__(self, listbox):
+    def __init__(self, listbox, dialog):
         """ pass in list box to manage and connect event"""
         self.listbox = listbox
         self.listbox.connect('row-activated', self.listbox_row_activated)
-        #~ container_proxy.connect_to_signal("state_change", self.update, dbus_interface="org.freedesktop.container")
+        self.listbox.connect('button_press_event', self.popup_menu)
+
+        self.menu = Gtk.Menu()
+        menu_item1 = Gtk.MenuItem("Show Logs")
+        self.menu.append(menu_item1)
+        menu_item2 = Gtk.MenuItem("Test")
+        self.menu.append(menu_item2)
+
+        self.confirm_dialog = dialog
+        #~ self.confirm_dialog.show()
+        
+        container_proxy.connect_to_signal("state_change", self.update, dbus_interface="org.freedesktop.container")
 
 
     def listbox_row_activated(self, listbox, listboxrow):
@@ -75,6 +86,14 @@ class ListBoxSelect:
             print "Container not started"  # todo: display error message
 
 
+    def popup_menu(self, widget, event):
+        print widget
+        print event
+        if event.button == 3:
+            print 'Right Click'
+        self.menu.show_all()
+        self.menu.popup(None, None, None, None, 0, Gtk.get_current_event_time())
+
     def list_containers(self, container, container_info):
         """ fill list with all docker containers """
         items = {}
@@ -82,17 +101,19 @@ class ListBoxSelect:
         glade_row.add_from_file('label.glade')
 
         items['row'] = glade_row.get_object("list_row")
-        items['row'].set_name(container_info['Id'])
+        items['row'].connect('button_press_event', self.popup_menu)
+        #~ items['row'].set_name(container_info['Id'])
         #~ print dir(items['row'])
-        items['row'].set_activatable(True)
-        items['row'].set_selectable(True)
-        items['row'].connect('activate', self.selection, container, container_info)
+        #~ items['row'].set_activatable(True)
+        #~ items['row'].set_selectable(True)
+        #~ items['row'].connect('activate', self.selection, container, container_info)
         #~ items['row'].connect('row-activated', self.selection, container, container_info)
 
         items['title'] = glade_row.get_object("dockerTitle")
         items['title'].set_label('%s - %s' % (container_info['Name'][1:], container.get('Status')))
 
         items['image'] = glade_row.get_object("dockerStatus")
+        items['image'].set_size_request(64, 64) # = glade_row.get_object("dockerStatus")
         items['uri_container'] = glade_row.get_object("uri_container")
         
         for uri in get_container_forwards(container_info):
@@ -100,12 +121,14 @@ class ListBoxSelect:
             items['uri_container'].pack_start(linkbutton, False, False, 0)
 
         if container_info['State']['Paused']:
-            items['image'].set_from_icon_name("gtk-media-pause", 10)  # todo: find nice image
+            items['image'].set_from_icon_name("gtk-media-pause", Gtk.IconSize.DIALOG)  # todo: find nice image
         elif container_info['State']['Running']:
-            items['image'].set_from_icon_name("gtk-yes", 64)
+            items['image'].set_from_stock("gtk-media-play", Gtk.IconSize.DIALOG)
+        else:
+            items['image'].set_from_stock("gtk-media-stop", Gtk.IconSize.DIALOG)
 
         items['switch'] = glade_row.get_object("dockerToggle")
-        items['switch'].connect('state-set', self.container_toggle_status, container)
+        #~ items['switch'].connect('state-set', self.container_toggle_status, container)
         if container_info['State']['Running']:
             items['switch'].set_active(True)
 

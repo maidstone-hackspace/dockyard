@@ -60,6 +60,7 @@ def get_container_forwards(container_info):
     ports = []
     ports_forwarded = ''
     
+    local = True
     localhost = '127.0.0.1'
     dockerhost = container_info['NetworkSettings']['IPAddress']
 
@@ -68,11 +69,19 @@ def get_container_forwards(container_info):
 
     for port in container_info['NetworkSettings']['Ports'].keys():
         ports = ''.join([l for l in port if l.isdigit()])
-        if container_info['NetworkSettings']['Ports'].get(port):
-            if port == '5900/tcp': #  vnc 
-                yield 'vnc://%s:%s' % (localhost, container_info['NetworkSettings']['Ports'][port][0].get('HostPort'))
-            if port == '443/tcp': #  https
-                yield 'https://%s:%s' % (container_info['NetworkSettings']['IPAddress'], container_info['NetworkSettings']['Ports'][port][0].get('HostPort'))
-            #  default to http
-            yield 'http://%s:%s' % (container_info['NetworkSettings']['IPAddress'], container_info['NetworkSettings']['Ports'][port][0].get('HostPort'))
+        if not container_info['NetworkSettings']['Ports'].get(port):
+            continue
+            
+        host = localhost
+        hostport = container_info['NetworkSettings']['Ports'][port][0].get('HostPort')
+        if local is False:
+            host = container_info['NetworkSettings']['IPAddress']
+            hostport = ''.join([i for i in port if i.isdigit()])
+
+        if port == '5900/tcp': #  vnc 
+            yield 'vnc://%s:%s' % (host, hostport)
+        if port == '443/tcp': #  https
+            yield 'https://%s:%s' % ((host, hostport))
+        #  default to http
+        yield 'http://%s:%s' % ((host, hostport))
     #~ return ports_forwarded
