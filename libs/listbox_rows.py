@@ -42,7 +42,7 @@ class ListBoxSelect:
         """ pass in list box to manage and connect event"""
         self.listbox = listbox
         self.listbox.connect('row-activated', self.listbox_row_activated)
-        self.listbox.connect('button_press_event', self.popup_menu)
+        #~ self.listbox.connect('button_press_event', self.popup_menu)
 
         self.menu = Gtk.Menu()
         menu_item1 = Gtk.MenuItem("Show Logs")
@@ -55,14 +55,28 @@ class ListBoxSelect:
         
         container_proxy.connect_to_signal("state_change", self.update, dbus_interface="org.freedesktop.container")
 
+    def populate(self, filter_string=None):
+        """ get a new xml and start the progress bar"""
+        self.clear()
+
+        for container in get_containers(filter=filter_string):
+            #~ print container['Id']
+            container_info = get_container_info(container['Id'])
+            #~ container_info = docker_client.inspect_container(container['Id'])
+            #~ menu_container = gtk.MenuItem(container_info['Name'])
+            self.listbox.list_containers(container, container_info)
 
     def listbox_row_activated(self, listbox, listboxrow):
         """ docker container has been selected so open terminal """
+        print 'test'
         container_id = listboxrow.get_name()
         container_info = get_container_name(container_id)
         #~ subprocess.call(
             #~ ['gnome-terminal', '--tab', '-e', '''/bin/bash -c "echo 'Connecting to conatiner named %s';sudo docker exec -it xe_container /bin/bash"''' % (container_name,container_name)])
         #~ print 'background'
+        
+        self.menu.show_all()
+        self.menu.popup(None, None, None, None, 0, Gtk.get_current_event_time())
         
         print container_info
         if container_info['State']['Running']:
@@ -101,7 +115,8 @@ class ListBoxSelect:
         glade_row.add_from_file('label.glade')
 
         items['row'] = glade_row.get_object("list_row")
-        items['row'].connect('button_press_event', self.popup_menu)
+        #~ items['row'].connect('button_press_event', self.popup_menu)
+        
         #~ items['row'].set_name(container_info['Id'])
         #~ print dir(items['row'])
         #~ items['row'].set_activatable(True)
@@ -153,12 +168,14 @@ class ListBoxSelect:
         #~ self.gui_rows[container_id]['switch'].set_state(state)
 
     def container_state_change(self, container_id):
-
-        print 'async callback'
         print container_id
-        state = container_iface.container_status(container_id)
-        print state
-
+        if container_id !='':
+            print 'async callback'
+            print container_id
+            state = container_iface.container_status(container_id)
+            print state
+        
+        self.populate()
         #~ if state != self.gui_rows[container_id]['switch'].get_active():
         #~ self.gui_rows[container_id]['switch'].set_active(state)
         
@@ -180,10 +197,14 @@ class ListBoxSelect:
         return
 
     def container_delete(self, widget, test,  row, container):
+        response = self.confirm_dialog.run()
+        if response == Gtk.ResponseType.OK:
+            print('TODO actually remove the container')
+            print container
+            container_iface.container_remove(container.get('Id'), reply_handler=self.container_state_change, error_handler=self.container_state_change)
         self.listbox.remove(row)
-        print('TODO actually remove the container')
-        print row
-        print container
+        
+        self.confirm_dialog.hide()
         return
 
     def update_active_progress_bar(self, widgets):

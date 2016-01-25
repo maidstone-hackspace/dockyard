@@ -78,6 +78,14 @@ class ContainerService(dbus.service.Object):
         #~ self.state_change('start')
         return container_id
 
+    @dbus.service.method(dbus_interface='org.freedesktop.container', in_signature='s', out_signature='s')
+    def container_remove(self, container_id):
+        print "\nremove container %s" % container_id
+        print docker_client.remove_container(container=container_id, force=True)
+        #~ self.tmp_list()
+        #~ self.state_change('start')
+        return ''
+
     @dbus.service.signal(dbus_interface='org.freedesktop.container', signature='ss')
     def state_change(self, container_id, state):
         print 'emit signal'
