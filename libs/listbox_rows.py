@@ -47,6 +47,7 @@ class ListBoxSelect:
         self.menu = Gtk.Menu()
         menu_item1 = Gtk.MenuItem("Show Logs")
         self.menu.append(menu_item1)
+        #self.menu.connect('button_press_event', self.container_delete, items['row'], container)
         menu_item2 = Gtk.MenuItem("Test")
         self.menu.append(menu_item2)
 
@@ -102,21 +103,23 @@ class ListBoxSelect:
 
     def popup_menu(self, widget, event):
         print widget
+        print widget.get_selected_row()
         print event
         if event.button == 3:
             print 'Right Click'
-        self.menu.show_all()
-        self.menu.popup(None, None, None, None, 0, Gtk.get_current_event_time())
+            self.menu.show_all()
+            self.menu.popup(None, None, None, None, 0, Gtk.get_current_event_time())
 
     def list_containers(self, container, container_info):
         """ fill list with all docker containers """
         items = {}
         glade_row = Gtk.Builder()
-        glade_row.add_from_file('label.glade')
+        glade_row.add_from_file('glade/label.glade')
 
         items['row'] = glade_row.get_object("list_row")
         #~ items['row'].connect('button_press_event', self.popup_menu)
         
+        items['row'].connect('activate', self.popup_menu)
         #~ items['row'].set_name(container_info['Id'])
         #~ print dir(items['row'])
         #~ items['row'].set_activatable(True)
@@ -153,6 +156,10 @@ class ListBoxSelect:
         self.listbox.add(items['row'])
         items['row'].show_all()
         self.gui_rows[container['Id']] = items
+
+    def show_logs(self, container):
+        logs = gdocker_logs.LogWindow()
+        logs.show_logs(container)
 
     def is_container_running(self, container):
         if 'Running' in container.get('Status'):
@@ -202,7 +209,7 @@ class ListBoxSelect:
             print('TODO actually remove the container')
             print container
             container_iface.container_remove(container.get('Id'), reply_handler=self.container_state_change, error_handler=self.container_state_change)
-        self.listbox.remove(row)
+            self.listbox.remove(row)
         
         self.confirm_dialog.hide()
         return
@@ -216,7 +223,7 @@ class ListBoxSelect:
         return False
 
     def clear(self):
-        """ remove all rows so we can pre-populate"""
+        """ remove all rows so we can pre-populate """
         for item in self.gui_rows.values():
             item['row'].destroy()
         self.gui_rows = {}

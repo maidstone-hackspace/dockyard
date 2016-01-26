@@ -29,7 +29,7 @@ class application_gui:
     def __init__(self):
         #load in our glade interface
         xml = Gtk.Builder()
-        xml.add_from_file('gdocker.glade')
+        xml.add_from_file('glade/gdocker.glade')
 
         #grab our widget using get_object this is the name of the widget from glade, window1 is the default name
         self.window = xml.get_object('root_window')
@@ -56,8 +56,6 @@ class application_gui:
         #show the window else there is nothing to see :)
         self.openFetcher()
         self.refresh()
-
-        # l = gdocker_logs.LogWindow()
 
     def openFetcher(self):
         self.window.show_all()
