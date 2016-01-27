@@ -15,7 +15,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('AppIndicator3', '0.1')
 from gi.repository import Gtk, GLib, Gdk, GdkPixbuf
-
+import settings
 import gdocker_logs
 
 import dbus
@@ -84,4 +84,31 @@ def get_container_forwards(container_info):
             yield 'https://%s:%s' % ((host, hostport))
         #  default to http
         yield 'http://%s:%s' % ((host, hostport))
-    #~ return ports_forwarded
+
+
+def get_registry_images(url, version='v2', search=None):
+    print search
+    dangling_image = 0
+    if version == 'l':
+        results = docker_client.images()
+        for item in results:
+            labels = item.get('Labels')
+            if item.get('RepoTags') == ['<none>:<none>']:
+                dangling_image += 1
+                continue
+            if search in item.get('RepoTags')[0]:
+                yield {'name': item.get('RepoTags')[0]}
+    else:
+        final_url = '%s/%s/' % (url, version)
+        if search:
+            final_url += 'search?q=%s' % search
+        else:
+            final_url += '_catalog'
+        r = requests.get(final_url)
+        registry = r.json()
+
+        for item in registry.get('results' if version=='v1' else 'repositories'):
+            print item
+            yield item
+
+

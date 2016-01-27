@@ -18,6 +18,7 @@ from gi.repository import Gtk, GLib, Gdk, GdkPixbuf
 
 from libs.docker_helper import get_containers, get_container, get_container_name, get_container_forwards, get_container_info
 from libs.listbox_rows import ListBoxSelect
+from gdocker_registry import registry_browser
 
 
 class application_gui:
@@ -31,12 +32,16 @@ class application_gui:
         xml = Gtk.Builder()
         xml.add_from_file('glade/gdocker.glade')
 
+        self.image_browser = registry_browser()
+
         #grab our widget using get_object this is the name of the widget from glade, window1 is the default name
         self.window = xml.get_object('root_window')
 
         #load our widgets from the glade file
         self.widgets = {}
         self.widgets['searchentry'] = xml.get_object('entry1')
+        self.widgets['open_registry'] = xml.get_object('btn_open_registry')
+        self.widgets['open_registry'].connect('button_press_event', self.show_image_list)
         self.widgets['searchentry'].connect('changed', self.refresh_list)
         self.widgets['listbox'] = xml.get_object('listbox1')
         self.widgets['progress'] = xml.get_object('listProgress')
@@ -79,6 +84,10 @@ class application_gui:
 
     def closeFetcher(self, widget):
         self.window.hide()
+    
+    def show_image_list(self, widget, *args):
+        print 'show()'
+        self.image_browser.show()
 
 
 application = application_gui()
