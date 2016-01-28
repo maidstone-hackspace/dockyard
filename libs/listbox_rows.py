@@ -37,78 +37,53 @@ class ListBoxSelect:
     """ handle the listbox rows dynamically add and remove widgets, and handle download. """
     listbox = None
     gui_rows = {}  # store widgets here so we can destroy them later.
+    current_container_id = None
+    current_container_info = None
 
     def __init__(self, listbox, dialog):
         """ pass in list box to manage and connect event"""
         self.listbox = listbox
         self.listbox.connect('row-activated', self.listbox_row_activated)
-        #~ self.listbox.connect('button_press_event', self.popup_menu)
 
         self.menu = Gtk.Menu()
+        menu_item0 = Gtk.MenuItem("Terminal")
+        menu_item0.connect('button_press_event', self.open_terminal)
+        self.menu.append(menu_item0)
+        
         menu_item1 = Gtk.MenuItem("Show Logs")
         self.menu.append(menu_item1)
-        #self.menu.connect('button_press_event', self.container_delete, items['row'], container)
+        menu_item1.connect('button_press_event', self.container_delete, items['row'], container)
+
         menu_item2 = Gtk.MenuItem("Test")
         self.menu.append(menu_item2)
 
         self.confirm_dialog = dialog
-        #~ self.confirm_dialog.show()
         
         container_proxy.connect_to_signal("state_change", self.update, dbus_interface="org.freedesktop.container")
 
     def populate(self, filter_string=None):
-        """ get a new xml and start the progress bar"""
+        """populate the listbox with current containers"""
         self.clear()
-
         for container in get_containers(filter=filter_string):
-            #~ print container['Id']
             container_info = get_container_info(container['Id'])
-            #~ container_info = docker_client.inspect_container(container['Id'])
-            #~ menu_container = gtk.MenuItem(container_info['Name'])
             self.listbox.list_containers(container, container_info)
+
+    def open_terminal(self, widget, event):
+        if self.current_container_info['State']['Running']:
+            subprocess.call(
+                ['gnome-terminal', '--tab', '-e', '''/bin/bash -c "echo 'Connecting to container: %s';
+                sudo docker exec -it %s /bin/bash"''' % (self.current_container_info['Name'][1:], self.current_container_info['Id'])]
+            )
+        else:
+            print "Container not started"  # todo: display error message
 
     def listbox_row_activated(self, listbox, listboxrow):
         """ docker container has been selected so open terminal """
-        print 'test'
-        container_id = listboxrow.get_name()
-        container_info = get_container_name(container_id)
-        #~ subprocess.call(
-            #~ ['gnome-terminal', '--tab', '-e', '''/bin/bash -c "echo 'Connecting to conatiner named %s';sudo docker exec -it xe_container /bin/bash"''' % (container_name,container_name)])
-        #~ print 'background'
+        self.current_container_id = listboxrow.get_name()
+        self.current_container_info = get_container_name(self.current_container_id)
         
         self.menu.show_all()
         self.menu.popup(None, None, None, None, 0, Gtk.get_current_event_time())
-        
-        print container_info
-        if container_info['State']['Running']:
-            subprocess.call(
-                ['gnome-terminal', '--tab', '-e', '''/bin/bash -c "echo 'Connecting to container: %s';
-                sudo docker exec -it %s /bin/bash"''' % (container_info['Name'][1:], container_info['Id'])]
-            )
-        else:
-            print "Container not started"  # todo: display error message
-
-
-    def selection(self, listbox, container, container_info):
-        """ docker container has been selected so open terminal """
-        print 'called'
-        if container_info['State']['Running']:
-            subprocess.call(
-                ['gnome-terminal', '--tab', '-e', '''/bin/bash -c "echo 'Connecting to container: %s';
-                sudo docker exec -it %s /bin/bash"''' % (container_info['Name'][1:], container_info['Id'])]
-            )
-        else:
-            print "Container not started"  # todo: display error message
-
-
-    def popup_menu(self, widget, event):
-        print widget
-        print widget.get_selected_row()
-        print event
-        if event.button == 3:
-            print 'Right Click'
-            self.menu.show_all()
-            self.menu.popup(None, None, None, None, 0, Gtk.get_current_event_time())
 
     def list_containers(self, container, container_info):
         """ fill list with all docker containers """
@@ -117,15 +92,8 @@ class ListBoxSelect:
         glade_row.add_from_file('glade/label.glade')
 
         items['row'] = glade_row.get_object("list_row")
-        #~ items['row'].connect('button_press_event', self.popup_menu)
-        
-        items['row'].connect('activate', self.popup_menu)
-        #~ items['row'].set_name(container_info['Id'])
-        #~ print dir(items['row'])
-        #~ items['row'].set_activatable(True)
-        #~ items['row'].set_selectable(True)
-        #~ items['row'].connect('activate', self.selection, container, container_info)
-        #~ items['row'].connect('row-activated', self.selection, container, container_info)
+        items['row'].set_activatable(True)
+        items['row'].set_name(container_info['Id'])
 
         items['title'] = glade_row.get_object("dockerTitle")
         items['title'].set_label('%s - %s' % (container_info['Name'][1:], container.get('Status')))

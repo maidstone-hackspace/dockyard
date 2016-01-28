@@ -14,8 +14,6 @@ from docker import Client
 docker_client = Client(base_url='unix://var/run/docker.sock')
 
 
-
-
 def get_containers(filter=None):
     """return a list of all container, or return a list that matches the filter"""
     docker_client = Client(base_url='unix://var/run/docker.sock')
@@ -77,6 +75,17 @@ class ContainerService(dbus.service.Object):
         #~ self.tmp_list()
         #~ self.state_change('start')
         return container_id
+
+    @dbus.service.method(dbus_interface='org.freedesktop.container', in_signature='s', out_signature='s')
+    def image_pull(self, image):
+        print "\n pull container %s" % image
+        for progress in docker_client.pull(image, stream=True):
+            print progress
+            
+        print 'pull complete'
+        #~ self.tmp_list()
+        #~ self.state_change('start')
+        return image
 
     @dbus.service.method(dbus_interface='org.freedesktop.container', in_signature='s', out_signature='s')
     def container_remove(self, container_id):
