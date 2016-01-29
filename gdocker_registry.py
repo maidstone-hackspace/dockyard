@@ -3,21 +3,19 @@
 # Remember to make it executable if you want dbus to launch it
 # It works with both Python2 and Python3
 
-from gi.repository import Gtk, GObject
-import dbus
-import dbus.service
-import requests
-from dbus.mainloop.glib import DBusGMainLoop
+from gi.repository import Gtk
 
-from libs.docker_helper import get_registry_images, container_iface
 import settings
+from libs.docker_helper import get_registry_images, container_iface
+
 
 class registry_browser():
     def __init__(self):
-        #load in our glade interface
+        # load in our glade interface
         xml = Gtk.Builder()
         xml.add_from_file('glade/gdocker_registry.glade')
         self.window = xml.get_object('window_registry')
+        self.window.connect('delete_event', self.hide)
         self.widget_image_list = xml.get_object('lb_image_list')
         self.registry_list = xml.get_object('cmb_registrys')
         self.pull_progress = xml.get_object('image_progress')
@@ -36,12 +34,16 @@ class registry_browser():
         menu_item1.connect('activate', self.pull_image)
 
         self.menu.append(menu_item1)
-        #self.menu.connect('button_press_event', self.container_delete, items['row'], container)
+        # self.menu.connect('button_press_event', self.container_delete, items['row'], container)
         menu_item2 = Gtk.MenuItem("Start Container")
         self.menu.append(menu_item2)
 
     def show(self):
         self.window.show_all()
+
+    def hide(self, *args):
+        self.window.hide()
+        return True
 
     def docker_message_handler(self, container_id):
         self.pull_progress.stop()
@@ -52,7 +54,6 @@ class registry_browser():
         # pass the image requested to the dbus daemon for download and respond to the callback
         self.pull_progress.start()
         container_iface.image_pull(name, reply_handler=self.docker_message_handler, error_handler=self.docker_message_handler)
-
 
     def search_registry(self, widget):
         for row in self.widget_image_list.get_children():
@@ -67,7 +68,6 @@ class registry_browser():
                 self.add_image(item.get('name'))
             self.widget_image_list.show_all()
 
-
     def popup_menu(self, widget, event):
         print 'menu'
         if event.button == 3:
@@ -81,23 +81,18 @@ class registry_browser():
         row.set_selectable(True)
         row.connect('activate', self.popup_menu)
         label = Gtk.Label(name)
-        
+
         layout_box = Gtk.Box()
-        
+
         pull_button = Gtk.Button(label='Pull')
         pull_button.connect('button_press_event', self.pull_image, name)
-        
+
         run_button = Gtk.Button(label='Run')
         run_button.connect('button_press_event', self.pull_image, name)
-        
+
         layout_box.add(label)
         layout_box.add(pull_button)
         layout_box.add(run_button)
-        
-        
+
         row.add(layout_box)
         self.widget_image_list.add(row)
-
-#~ application = registry_browser()
-#~ Gtk.main()
-

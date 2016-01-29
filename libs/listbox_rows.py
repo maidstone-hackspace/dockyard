@@ -5,24 +5,17 @@
 # [SNIPPET_DESCRIPTION: add rows to a listbox based on retrieved xml file]
 # [SNIPPET_AUTHOR: Oliver Marks ]
 # [SNIPPET_LICENSE: GPL]
-import os
-import requests
-import time
-from io import StringIO, BytesIO
+
+
 import subprocess
-from lxml.html import parse
 import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('AppIndicator3', '0.1')
-from gi.repository import Gtk, GLib, Gdk, GdkPixbuf
+from gi.repository import Gtk
 
 import gdocker_logs
 
-import dbus
-import dbus.service
-from dbus.mainloop.glib import DBusGMainLoop
-
-from libs.docker_helper import get_containers, get_container, get_container_name, get_container_forwards, container_iface, container_proxy
+from libs.docker_helper import get_containers, get_container_name, get_container_forwards, container_iface, container_proxy
 
 #~ DBusGMainLoop(set_as_default=True)
 #~ #TODO look into GDBus instead of dbus
@@ -52,7 +45,7 @@ class ListBoxSelect:
         
         menu_item1 = Gtk.MenuItem("Show Logs")
         self.menu.append(menu_item1)
-        menu_item1.connect('button_press_event', self.container_delete, items['row'], container)
+        menu_item1.connect('button_press_event', self.container_delete)
 
         menu_item2 = Gtk.MenuItem("Test")
         self.menu.append(menu_item2)
@@ -65,7 +58,7 @@ class ListBoxSelect:
         """populate the listbox with current containers"""
         self.clear()
         for container in get_containers(filter=filter_string):
-            container_info = get_container_info(container['Id'])
+            container_info = get_container_name(container['Id'])
             self.listbox.list_containers(container, container_info)
 
     def open_terminal(self, widget, event):
@@ -176,7 +169,7 @@ class ListBoxSelect:
         if response == Gtk.ResponseType.OK:
             print('TODO actually remove the container')
             print container
-            container_iface.container_remove(container.get('Id'), reply_handler=self.container_state_change, error_handler=self.container_state_change)
+            container_iface.container_remove(self.current_container_id.get('Id'), reply_handler=self.container_state_change, error_handler=self.container_state_change)
             self.listbox.remove(row)
         
         self.confirm_dialog.hide()

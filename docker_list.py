@@ -5,18 +5,14 @@
 # [SNIPPET_DESCRIPTION: add rows to a listbox based on retrieved xml file]
 # [SNIPPET_AUTHOR: Oliver Marks ]
 # [SNIPPET_LICENSE: GPL]
-import os
-import requests
-import time
-from io import StringIO, BytesIO
-import subprocess
-from lxml.html import parse
-import gi
-gi.require_version('Gtk', '3.0')
-gi.require_version('AppIndicator3', '0.1')
-from gi.repository import Gtk, GLib, Gdk, GdkPixbuf
 
-from libs.docker_helper import get_containers, get_container, get_container_name, get_container_forwards, get_container_info
+
+import gi
+#~ gi.require_version('Gtk', '3.0')
+#~ gi.require_version('AppIndicator3', '0.1')
+from gi.repository import Gtk
+
+from libs.docker_helper import get_containers, get_container_info
 from libs.listbox_rows import ListBoxSelect
 from gdocker_registry import registry_browser
 
@@ -28,16 +24,16 @@ class application_gui:
     retrieve_job = None
 
     def __init__(self):
-        #load in our glade interface
+        # load in our glade interface
         xml = Gtk.Builder()
         xml.add_from_file('glade/gdocker.glade')
 
         self.image_browser = registry_browser()
 
-        #grab our widget using get_object this is the name of the widget from glade, window1 is the default name
+        # grab our widget using get_object this is the name of the widget from glade, window1 is the default name
         self.window = xml.get_object('root_window')
 
-        #load our widgets from the glade file
+        # load our widgets from the glade file
         self.widgets = {}
         self.widgets['searchentry'] = xml.get_object('entry1')
         self.widgets['open_registry'] = xml.get_object('btn_open_registry')
@@ -51,14 +47,14 @@ class application_gui:
         self.widgets['close'] = xml.get_object('btnClose')
         self.widgets['close'].connect('button_press_event', self.closeFetcher)
 
-        #wrap the listbox so we can reuse the code, pass in the listbox widget to our wrapper class
+        # wrap the listbox so we can reuse the code, pass in the listbox widget to our wrapper class
         self.listbox = ListBoxSelect(self.widgets['listbox'], self.widgets['message_dialog'])
 
-        #connect to events, in this instance just quit our application
+        # connect to events, in this instance just quit our application
         self.window.connect('delete_event', Gtk.main_quit)
         self.window.connect('destroy', lambda quit: Gtk.main_quit())
 
-        #show the window else there is nothing to see :)
+        # show the window else there is nothing to see :)
         self.openFetcher()
         self.refresh()
 
@@ -76,21 +72,16 @@ class application_gui:
         self.listbox.clear()
 
         for container in get_containers(filter=filter_string):
-            #~ print container['Id']
             container_info = get_container_info(container['Id'])
-            #~ container_info = docker_client.inspect_container(container['Id'])
-            #~ menu_container = gtk.MenuItem(container_info['Name'])
             self.listbox.list_containers(container, container_info)
 
     def closeFetcher(self, widget):
         self.window.hide()
-    
+
     def show_image_list(self, widget, *args):
         print 'show()'
         self.image_browser.show()
 
 
 application = application_gui()
-
-#~ GObject.mainloop.run()
 Gtk.main()
