@@ -139,6 +139,7 @@ myservice = ContainerService()
 time_in_ms = 120
 #~ GObject.timeout_add(time_in_ms, myservice.live_events)
 e = DockerEventsThread(myservice)
+e.daemon = True
 e.start()
 
 now = datetime.datetime.now()
