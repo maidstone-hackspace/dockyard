@@ -77,6 +77,20 @@ class ContainerService(dbus.service.Object):
         return container_id
 
     @dbus.service.method(dbus_interface='org.freedesktop.container', in_signature='s', out_signature='s')
+    def container_create(self, container_params):
+        container_params = json.loads(container_params)
+        print "\ncreate container %s" % container_params
+        try:
+            print docker_client.create_container(**container_params)
+        except e:
+            print e
+            sys.exit(1)
+        #~ self.tmp_list()
+        #~ self.state_change('start')
+        print 'finished'
+        return 'finished'
+
+    @dbus.service.method(dbus_interface='org.freedesktop.container', in_signature='s', out_signature='s')
     def image_pull(self, image):
         print "\n pull container %s" % image
         for progress in docker_client.pull(image, stream=True):
@@ -97,7 +111,7 @@ class ContainerService(dbus.service.Object):
 
     @dbus.service.signal(dbus_interface='org.freedesktop.container', signature='ss')
     def state_change(self, container_id, state):
-        print 'emit signal'
+        print 'emit signal %s %s' % (container_id, state)
         #~ print "%d bottles of %s on the wall" % (number, contents)
         return 'something changed %s %s' % (container_id, state)
 

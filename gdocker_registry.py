@@ -3,6 +3,8 @@
 # Remember to make it executable if you want dbus to launch it
 # It works with both Python2 and Python3
 
+import yaml
+import json
 from gi.repository import Gtk
 
 import settings
@@ -11,6 +13,7 @@ from libs.docker_helper import get_registry_images, container_iface
 
 class registry_browser():
     showing_local_images = True
+    current_image = ''
 
     def __init__(self):
         # load in our glade interface
@@ -22,6 +25,7 @@ class registry_browser():
         self.run_param_container_name = xml.get_object('run_widget_name')
         self.run_param_treeview = xml.get_object('run_widget_list')
         self.run_param_liststore = xml.get_object('run_widget_liststore')
+        self.run_widget_launch = xml.get_object('run_widget_launch')
         self.run_widget_add_row = xml.get_object('run_widget_add_row')
         self.run_widget_add_row_param_type = xml.get_object('run_widget_param_type')
         self.run_widget_add_param1 = xml.get_object('run_widget_param1')
@@ -32,6 +36,7 @@ class registry_browser():
         self.run_widget_terminal = xml.get_object('run_widget_terminal')
         self.run_widget_priviledged = xml.get_object('run_widget_priviledged')
         self.run_widget_add_row.connect('button_press_event', self.add_row_to_container)
+        self.run_widget_launch.connect('button_press_event', self.run_widget_launcher)
 
         self.window = xml.get_object('window_registry')
         self.window.connect('delete_event', self.hide)
@@ -61,11 +66,10 @@ class registry_browser():
         # self.menu.connect('button_press_event', self.container_delete, items['row'], container)
         menu_item2 = Gtk.MenuItem("Start Container")
         self.menu.append(menu_item2)
+        
+        self.update_create_properties_from_config()
 
     def add_row_to_container(self, *args):
-        print self.run_widget_add_row_param_type.get_active_text()
-        print self.run_widget_add_param1.get_text()
-        print self.run_widget_add_param2.get_text()
         self.run_param_liststore.append([
             self.run_widget_add_row_param_type.get_active_text(),
             self.run_widget_add_param1.get_text(),
@@ -80,6 +84,51 @@ class registry_browser():
     def hide(self, *args):
         self.window.hide()
         return True
+
+    def update_create_properties_from_config(self):
+        with open('config/default.yaml') as fp:
+            properties = yaml.load(fp)
+
+        first_key = properties.keys()[0]
+        if type(properties[first_key]) is dict:
+            properties = properties[first_key]
+        
+        print '------------'
+        print properties
+
+        self.current_image = properties.get('image', '')
+        self.run_param_container_name.set_text(properties.get('container_name', ''))
+        self.run_widget_terminal.set_active(properties.get('tty') is True)
+        self.run_widget_priviledged.set_active(properties.get('privileged') is True)
+
+        if properties.get('volumes'):
+            for v in properties.get('volumes'):
+                vol = v.split(':')
+                self.run_param_liststore.append([
+                    'Volumes',
+                    vol[0],
+                    vol[-1] if len(vol) > 1 else ''
+                ])
+
+        if properties.get('expose'):
+            for p in properties.get('expose'):
+                port = p.split(':')
+                self.run_param_liststore.append([
+                    'Ports',
+                    port[0],
+                    port[-1] if len(port) > 1 else ''
+                ])
+
+        if properties.get('links'):
+            for p in properties.get('links'):
+                port = p.split(':')
+                self.run_param_liststore.append([
+                    'Links',
+                    port[0],
+                    port[-1] if len(port) > 1 else ''
+                ])
+
+        print properties
 
     def docker_create_container(self):
         param_list = []
@@ -101,11 +150,37 @@ class registry_browser():
         print param_list
         
         self.window_run.show_all()
-        
+
+    def container_create_json(self):
+        ports = [':'.join((value1, value2)) for switch, value1, value2 in self.run_param_liststore if switch == 'Ports']
+        volumes = [':'.join((value1, value2)) for switch, value1, value2 in self.run_param_liststore if switch == 'Volumes']
+        enviroment = [':'.join((value1, value2)) for switch, value1, value2 in self.run_param_liststore if switch == 'Enviroment']
+        links = [':'.join((value1, value2)) for switch, value1, value2 in self.run_param_liststore if switch == 'Links']
+
+        return {
+            'name': self.run_param_container_name.get_text(),
+            'image': self.current_image,
+            'command': '',
+            'hostname': '',
+            'detach': True if self.run_widget_daemon.get_active() else False,
+            'tty': True if self.run_widget_terminal.get_active() else False,
+            'ports': ports,
+            'enviroment': enviroment,
+            'volumes': volumes,
+            'volumes_from': []
+        }
+
+    def run_widget_launcher(self, *args):
+        self.window_run.hide()
+        container_params = self.container_create_json()
+        print 'launch container'
+        print container_iface.container_create(json.dumps(container_params), reply_handler=self.docker_message_handler, error_handler=self.docker_message_handler)
+        #create_container(image='busybox:latest', command='/bin/sleep 30')
+
 
     def docker_message_handler(self, container_id):
         self.pull_progress.stop()
-        self.populate()
+        #~ self.populate()
 
     def pull_image(self, widget, skip, name):
         # pass the image requested to the dbus daemon for download and respond to the callback
