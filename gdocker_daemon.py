@@ -11,6 +11,7 @@ import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
 
 from docker import Client
+from docker.errors import APIError
 docker_client = Client(base_url='unix://var/run/docker.sock')
 
 
@@ -82,9 +83,8 @@ class ContainerService(dbus.service.Object):
         print "\ncreate container %s" % container_params
         try:
             print docker_client.create_container(**container_params)
-        except e:
+        except APIError as e:
             print e
-            sys.exit(1)
         #~ self.tmp_list()
         #~ self.state_change('start')
         print 'finished'

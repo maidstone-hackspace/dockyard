@@ -1,0 +1,29 @@
+app:
+    build: .
+    image: buildozer
+
+    container_name: gdocker_example_container
+
+    hostname: foo
+    privileged: true
+    restart: always
+    stdin_open: true
+    tty: true
+
+    working_dir: /go/src/simple-golang-app
+    command: go run main.go
+
+
+    volumes:
+     - /var/lib/mysql
+     - ~/:/root
+
+    expose:
+     - "3000"
+     - "8000"
+
+    links:
+     - "db"
+
+example2:
+    image: postgres

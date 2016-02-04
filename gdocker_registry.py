@@ -165,7 +165,7 @@ class registry_browser():
             'detach': True if self.run_widget_daemon.get_active() else False,
             'tty': True if self.run_widget_terminal.get_active() else False,
             'ports': ports,
-            'enviroment': enviroment,
+            'environment': enviroment,
             'volumes': volumes,
             'volumes_from': []
         }
