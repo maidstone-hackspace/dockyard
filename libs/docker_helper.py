@@ -17,7 +17,7 @@ gi.require_version('AppIndicator3', '0.1')
 from gi.repository import Gtk, GLib, Gdk, GdkPixbuf
 from gi.repository import Notify as notify
 import settings
-import gdocker_logs
+##import gdocker_logs
 
 import dbus
 import dbus.service
@@ -41,6 +41,7 @@ app_name = "Docker"
 from docker import Client
 docker_client = Client(base_url='unix://var/run/docker.sock')
 
+
 def get_containers(filter=None):
     """return a list of all container, or return a list that matches the filter"""
     for container in docker_client.containers(all=True):
@@ -48,19 +49,20 @@ def get_containers(filter=None):
         if filter is None or filter in container_info['Name']:
             yield container
 
+
 def get_container(container_id):
     for container in get_containers():
         if container_id == container['Id']:
             return container
 
+
 def get_container_info(container_id):
     return docker_client.inspect_container(container_id)
-    
-def get_container_name(container_id):
-    container = get_container(container_id)
-    """return a list of all container, or return a list that matches the filter"""
-    container_info = docker_client.inspect_container(container)
-    return container_info
+
+
+def get_container_logs(container_id, time):
+    return docker_client.logs(get_container(container_id), time)
+
 
 def get_container_forwards(container_info):
     ports = []

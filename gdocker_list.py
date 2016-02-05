@@ -14,7 +14,7 @@ from gi.repository import Gtk
 from gi.repository import AppIndicator3 as appindicator
 from gi.repository import Notify as notify
 
-from libs.docker_helper import get_containers, get_container_info
+from libs.docker_helper import get_containers, get_container, get_container_info, get_container_forwards
 from libs.listbox_rows import ListBoxSelect
 from gdocker_registry import registry_browser
 

@@ -14,9 +14,17 @@ gi.require_version('AppIndicator3', '0.1')
 from gi.repository import Gtk
 from gi.repository import Notify as notify
 
-import gdocker_logs
+from gdocker_logs import LogWindow
 
-from libs.docker_helper import get_containers, get_container_name, get_container_forwards, container_iface, container_proxy
+from libs.docker_helper import get_containers, get_container_info, get_container_forwards, container_iface, container_proxy
+
+#~ DBusGMainLoop(set_as_default=True)
+#~ #TODO look into GDBus instead of dbus
+
+#~ bus = dbus.SessionBus()
+#~ container_proxy = bus.get_object('org.freedesktop.container', '/org/freedesktop/container')
+#~ container_iface = dbus.Interface(container_proxy, dbus_interface='org.freedesktop.container')
+#~ app_name = "Docker"
 
 
 class ListBoxSelect:
@@ -27,7 +35,8 @@ class ListBoxSelect:
     current_container_info = None
 
     def __init__(self, listbox, dialog):
-        """ pass in list box to manage and connect event"""
+        """ pass in list box to manage and connect event """
+        self.logs = LogWindow()
         self.listbox = listbox
         self.listbox.connect('row-activated', self.listbox_row_activated)
 
@@ -38,7 +47,7 @@ class ListBoxSelect:
         
         menu_item1 = Gtk.MenuItem("Show Logs")
         self.menu.append(menu_item1)
-        menu_item1.connect('button_press_event', self.container_delete)
+        menu_item1.connect('button_press_event', self.show_loged)
 
         menu_item2 = Gtk.MenuItem("Test")
         self.menu.append(menu_item2)
@@ -63,10 +72,13 @@ class ListBoxSelect:
         else:
             print "Container not started"  # todo: display error message
 
+    def show_loged(self, widget, event):
+        self.logs.show_logs(self.current_container_id)
+
     def listbox_row_activated(self, listbox, listboxrow):
         """ docker container has been selected so open terminal """
         self.current_container_id = listboxrow.get_name()
-        self.current_container_info = get_container_name(self.current_container_id)
+        self.current_container_info = get_container_info(self.current_container_id)
         
         self.menu.show_all()
         self.menu.popup(None, None, None, None, 0, Gtk.get_current_event_time())
