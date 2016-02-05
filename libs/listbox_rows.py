@@ -12,18 +12,11 @@ import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('AppIndicator3', '0.1')
 from gi.repository import Gtk
+from gi.repository import Notify as notify
 
 import gdocker_logs
 
 from libs.docker_helper import get_containers, get_container_name, get_container_forwards, container_iface, container_proxy
-
-#~ DBusGMainLoop(set_as_default=True)
-#~ #TODO look into GDBus instead of dbus
-
-#~ bus = dbus.SessionBus()
-#~ container_proxy = bus.get_object('org.freedesktop.container', '/org/freedesktop/container')
-#~ container_iface = dbus.Interface(container_proxy, dbus_interface='org.freedesktop.container')
-#~ app_name = "Docker"
 
 
 class ListBoxSelect:
@@ -59,7 +52,7 @@ class ListBoxSelect:
         self.clear()
         for container in get_containers(filter=filter_string):
             container_info = get_container_name(container['Id'])
-            self.listbox.list_containers(container, container_info)
+            self.list_containers(container, container_info)
 
     def open_terminal(self, widget, event):
         if self.current_container_info['State']['Running']:
@@ -107,9 +100,8 @@ class ListBoxSelect:
             items['image'].set_from_stock("gtk-media-stop", Gtk.IconSize.DIALOG)
 
         items['switch'] = glade_row.get_object("dockerToggle")
-        #~ items['switch'].connect('state-set', self.container_toggle_status, container)
-        if container_info['State']['Running']:
-            items['switch'].set_active(True)
+        items['switch'].set_active(True==container_info['State']['Running'])
+        items['switch'].connect('state-set', self.container_toggle_status, container)
 
         items['button'] = glade_row.get_object("dockerRemove")
         items['button'].connect('button_press_event', self.container_delete, items['row'], container)
@@ -127,9 +119,10 @@ class ListBoxSelect:
             return False
         return True
 
-    def update(self, container_id):
+    def update(self, container_id, state):
         print 'container daemon state change'
         print container_id
+        notify.Notification.new(container_id, state, None).show()
         #~ state = container_iface.container_status(container_id)
         #~ print state
         #~ self.gui_rows[container['Id']]['switch'].get_state()
@@ -143,7 +136,7 @@ class ListBoxSelect:
             state = container_iface.container_status(container_id)
             print state
         
-        self.populate()
+        #~ self.populate()
         #~ if state != self.gui_rows[container_id]['switch'].get_active():
         #~ self.gui_rows[container_id]['switch'].set_active(state)
         
@@ -159,10 +152,15 @@ class ListBoxSelect:
         container_iface.container_start(container.get('Id'), reply_handler=self.container_state_change, error_handler=self.container_state_change)
         return False
 
-    def container_toggle_status(self, widget, test,  container):
+    def container_toggle_status(self, widget, state,  container):
+        print 'container_toggle_status'
+        print state
+        #~ print widget.get_active()
+        #~ widget.set_active(not widget.get_active())
         #~ self.gui_rows[container.get('Id')]['row'].set_sensitive(False)
+        #~ if state != widget.get_active():
         self.container_change_status(container, widget.get_active())
-        return
+        return 
 
     def container_delete(self, widget, test,  row, container):
         response = self.confirm_dialog.run()

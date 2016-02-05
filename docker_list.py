@@ -11,11 +11,14 @@ import gi
 #~ gi.require_version('Gtk', '3.0')
 #~ gi.require_version('AppIndicator3', '0.1')
 from gi.repository import Gtk
+from gi.repository import AppIndicator3 as appindicator
+from gi.repository import Notify as notify
 
 from libs.docker_helper import get_containers, get_container_info
 from libs.listbox_rows import ListBoxSelect
 from gdocker_registry import registry_browser
 
+APPINDICATOR_ID = 'GDocker Indicator'
 
 class application_gui:
     """Tutorial 13 custom treeview list boxes"""
@@ -82,6 +85,14 @@ class application_gui:
         print 'show()'
         self.image_browser.show()
 
+#~ def quit(_):
+    #~ notify.uninit()
+    #~ gtk.main_quit()
 
-application = application_gui()
-Gtk.main()
+if __name__ == '__main__':
+    indicator = appindicator.Indicator.new(APPINDICATOR_ID, 'sample_icon.svg', appindicator.IndicatorCategory.SYSTEM_SERVICES)
+    indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
+        #~ indicator.set_menu(build_menu())
+    notify.Notification.new('test', 'test', None).show()
+    application = application_gui()
+    Gtk.main()

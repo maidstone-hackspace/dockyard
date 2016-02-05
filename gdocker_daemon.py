@@ -82,13 +82,13 @@ class ContainerService(dbus.service.Object):
         container_params = json.loads(container_params)
         print "\ncreate container %s" % container_params
         try:
-            print docker_client.create_container(**container_params)
+            new_container = docker_client.create_container(**container_params)
         except APIError as e:
             print e
-        #~ self.tmp_list()
-        #~ self.state_change('start')
+        docker_client.start(container=new_container.get('Id'))
         print 'finished'
-        return 'finished'
+        
+        return new_container
 
     @dbus.service.method(dbus_interface='org.freedesktop.container', in_signature='s', out_signature='s')
     def image_pull(self, image):
@@ -124,6 +124,12 @@ class ContainerService(dbus.service.Object):
         return str(self.is_container_running(container_id))
 
 
+state_lookup = {
+    'start': 'Started', 
+    'stop': 'Stopped', 
+    'create': 'Created', 
+    'remove': 'Removed'}
+
 class DockerEventsThread(threading.Thread):
     # TODO look for a better way asyncio perhaps ?
     def __init__(self, service):
@@ -137,8 +143,11 @@ class DockerEventsThread(threading.Thread):
         while True:
             container = next(live_events)
             container = json.loads(container)
-            if container.get('status') in ('start', 'stop', 'create'):
-                self.service.state_change(str(container.get('Id')), str(container.get('status')))
+            
+            if container.get('Type') in ('container'):
+                if container.get('status') in state_lookup.keys():
+
+                    self.service.state_change(str(container['Actor']['Attributes'].get('name')), state_lookup.get(container.get('status')))
 
 
 #~ c8ba2c6c41a86147eaad3a1959f84e19cdf3b7c520e2cb596782165331be3978

@@ -6,6 +6,7 @@
 import yaml
 import json
 from gi.repository import Gtk
+from gi.repository import Notify as notify
 
 import settings
 from libs.docker_helper import get_registry_images, container_iface
@@ -56,10 +57,10 @@ class registry_browser():
             self.add_image(image.get('name'))
 
         self.menu = Gtk.Menu()
-        menu_item1 = Gtk.MenuItem("Pull Images")
+        menu_item1 = Gtk.MenuItem("Pull Image")
         menu_item1.connect('activate', self.pull_image)
 
-        menu_remove_image = Gtk.MenuItem("Pull Images")
+        menu_remove_image = Gtk.MenuItem("Remove Image")
         menu_remove_image.connect('activate', self.remove_image)
 
         self.menu.append(menu_item1)
@@ -79,7 +80,6 @@ class registry_browser():
 
     def show(self):
         self.window.show_all()
-        self.window_run.show_all()
 
     def hide(self, *args):
         self.window.hide()
@@ -172,10 +172,10 @@ class registry_browser():
 
     def run_widget_launcher(self, *args):
         self.window_run.hide()
+        self.pull_progress.start()
         container_params = self.container_create_json()
         print 'launch container'
         print container_iface.container_create(json.dumps(container_params), reply_handler=self.docker_message_handler, error_handler=self.docker_message_handler)
-        #create_container(image='busybox:latest', command='/bin/sleep 30')
 
 
     def docker_message_handler(self, container_id):
@@ -186,6 +186,9 @@ class registry_browser():
         # pass the image requested to the dbus daemon for download and respond to the callback
         self.pull_progress.start()
         container_iface.image_pull(name, reply_handler=self.docker_message_handler, error_handler=self.docker_message_handler)
+
+    def launch_image(self, widget, skip, name):
+        self.window_run.show_all()
 
     def remove_image(self, widget, skip, name):
         # pass the image requested to the dbus daemon for download and respond to the callback
@@ -236,7 +239,7 @@ class registry_browser():
             layout_box.add(pull_button)
 
         run_button = Gtk.Button(label='Run')
-        run_button.connect('button_press_event', self.pull_image, name)
+        run_button.connect('button_press_event', self.launch_image, name)
 
         layout_box.add(run_button)
 

@@ -15,12 +15,18 @@ import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('AppIndicator3', '0.1')
 from gi.repository import Gtk, GLib, Gdk, GdkPixbuf
+from gi.repository import Notify as notify
 import settings
 import gdocker_logs
 
 import dbus
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
+
+
+
+
+notify.init(settings.APPINDICATOR_ID)
 
 
 DBusGMainLoop(set_as_default=True)
