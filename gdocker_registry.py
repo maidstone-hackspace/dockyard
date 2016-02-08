@@ -46,7 +46,7 @@ class registry_browser():
         self.registry_list.connect('changed', self.search_registry)
 
         self.pull_progress = xml.get_object('image_progress')
-        self.search_registry_widget = xml.get_object('entry_search')
+        self.search_registry_widget = xml.get_object('image_search')
         self.search_registry_widget.connect('activate', self.search_registry)
 
         for registry in settings.registry_list:
@@ -225,9 +225,11 @@ class registry_browser():
         row.set_selectable(True)
         row.connect('activate', self.popup_menu)
         label = Gtk.Label(name)
-
+        label.set_justify(Gtk.Justification.LEFT)
+        label.set_halign(Gtk.Justification.LEFT)
+        label.set_xalign(0)
         layout_box = Gtk.Box()
-        layout_box.add(label)
+        layout_box.pack_start(label, True, False, 5)
 
         if self.showing_local_images is True:
             remove_button = Gtk.Button(label='Remove')

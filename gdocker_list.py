@@ -14,11 +14,11 @@ from gi.repository import Gtk
 from gi.repository import AppIndicator3 as appindicator
 from gi.repository import Notify as notify
 
+from settings import APPINDICATOR_ID
 from libs.docker_helper import get_containers, get_container, get_container_info, get_container_forwards
 from libs.listbox_rows import ListBoxSelect
 from gdocker_registry import registry_browser
 
-APPINDICATOR_ID = 'GDocker Indicator'
 
 class application_gui:
     """Tutorial 13 custom treeview list boxes"""
@@ -38,7 +38,10 @@ class application_gui:
 
         # load our widgets from the glade file
         self.widgets = {}
-        self.widgets['searchentry'] = xml.get_object('entry1')
+        self.widgets['searchentry'] = xml.get_object('search_containers')
+        self.widgets['searchentrycompletion'] = xml.get_object('search_container_completion')
+        self.widgets['searchentry'].set_completion(self.widgets['searchentrycompletion'])
+
         self.widgets['open_registry'] = xml.get_object('btn_open_registry')
         self.widgets['open_registry'].connect('button_press_event', self.show_image_list)
         self.widgets['searchentry'].connect('changed', self.refresh_list)
@@ -90,9 +93,12 @@ class application_gui:
     #~ gtk.main_quit()
 
 if __name__ == '__main__':
-    indicator = appindicator.Indicator.new(APPINDICATOR_ID, 'sample_icon.svg', appindicator.IndicatorCategory.SYSTEM_SERVICES)
+    #~ indicator = appindicator.Indicator.new(APPINDICATOR_ID, 'sample_icon.svg', appindicator.IndicatorCategory.CATEGORY_APPLICATION_STATUS)
+    indicator = appindicator.Indicator.new(APPINDICATOR_ID, 'indicator-messages', appindicator.IndicatorCategory.SYSTEM_SERVICES)
     indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
+    indicator.set_attention_icon("new-messages-red")
+    indicator.set_menu(Gtk.Menu())
         #~ indicator.set_menu(build_menu())
-    notify.Notification.new('test', 'test', None).show()
+    notify.Notification.new('Gnome docker', 'Gnome Docker applet launched', None).show()
     application = application_gui()
     Gtk.main()

@@ -8,4 +8,4 @@ registry_list = [
 
 app_name = "Docker"
 
-APPINDICATOR_ID = 'GDocker Indicator'
+APPINDICATOR_ID = 'GDockerIndicator'
