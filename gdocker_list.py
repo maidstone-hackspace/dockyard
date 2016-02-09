@@ -93,8 +93,8 @@ class application_gui:
     #~ gtk.main_quit()
 
 if __name__ == '__main__':
-    #~ indicator = appindicator.Indicator.new(APPINDICATOR_ID, 'sample_icon.svg', appindicator.IndicatorCategory.CATEGORY_APPLICATION_STATUS)
-    indicator = appindicator.Indicator.new(APPINDICATOR_ID, 'indicator-messages', appindicator.IndicatorCategory.SYSTEM_SERVICES)
+    #~ indicator = appindicator.Indicator.new(APPINDICATOR_ID, 'gdcoker.svg', appindicator.IndicatorCategory.CATEGORY_APPLICATION_STATUS)
+    indicator = appindicator.Indicator.new(APPINDICATOR_ID, './images/gdocker.png', appindicator.IndicatorCategory.SYSTEM_SERVICES)
     indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
     indicator.set_attention_icon("new-messages-red")
     indicator.set_menu(Gtk.Menu())

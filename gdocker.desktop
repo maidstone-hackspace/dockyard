@@ -7,15 +7,10 @@ Comment=GTK Frontend for managing docker containers locally
 Type=Application
 Categories=Graphics;VectorGraphics;GTK;
 MimeType=image/svg+xml;image/svg+xml-compressed;application/vnd.corel-draw;image/x-eps;application/illustrator;
-Exec=fabricad %F
+Exec=gdcoker %F
 TryExec=GDocker
 Terminal=false
 StartupNotify=true
-Icon=fabricad
-X-Ayatana-Desktop-Shortcuts=Drawing
+Icon=gdocker
 X-Ubuntu-Gettext-Domain=GDocker
-
-[Drawing Shortcut Group]
-Name=New Drawing
-Exec=GDocker
-TargetEnvironment=Unity
+DBusActivatable=true
