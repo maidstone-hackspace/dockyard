@@ -53,8 +53,6 @@ class ListBoxSelect:
         self.menu.append(menu_item2)
 
         self.confirm_dialog = dialog
-        
-        container_proxy.connect_to_signal("state_change", self.update, dbus_interface="org.freedesktop.container")
 
     def populate(self, filter_string=None):
         """populate the listbox with current containers"""

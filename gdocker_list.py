@@ -15,7 +15,7 @@ from gi.repository import AppIndicator3 as appindicator
 from gi.repository import Notify as notify
 
 from settings import APPINDICATOR_ID
-from libs.docker_helper import get_containers, get_container, get_container_info, get_container_forwards
+from libs.docker_helper import get_containers, get_container, get_container_info, get_container_forwards, container_iface, container_proxy
 from libs.listbox_rows import ListBoxSelect
 from gdocker_registry import registry_browser
 
@@ -59,6 +59,8 @@ class application_gui:
         # connect to events, in this instance just quit our application
         self.window.connect('delete_event', Gtk.main_quit)
         self.window.connect('destroy', lambda quit: Gtk.main_quit())
+
+        container_proxy.connect_to_signal("state_change", self.refresh_list, dbus_interface="org.freedesktop.container")
 
         # show the window else there is nothing to see :)
         self.openFetcher()
