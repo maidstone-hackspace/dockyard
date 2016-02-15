@@ -29,3 +29,5 @@ xdg-desktop-menu forceupdate
 
 
 desktop-file-validate gdocker.desktop
+
+update-desktop-database

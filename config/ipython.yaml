@@ -1,0 +1,24 @@
+app:
+    build: .
+    image: ipython
+
+    container_name: ipython_container
+
+    hostname: foo
+    privileged: true
+    restart: always
+    stdin_open: true
+    tty: true
+
+    working_dir: /go/src/simple-golang-app
+    command: go run main.go
+
+
+    volumes:
+     - /var/lib/mysql
+     - ~/:/root
+
+    expose:
+     - "443:443"
+
+

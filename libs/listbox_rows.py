@@ -135,6 +135,7 @@ class ListBoxSelect:
         print 'container daemon state change'
         print container_id
         notify.Notification.new(container_id, state, None).show()
+        self.populate()
         #~ state = container_iface.container_status(container_id)
         #~ print state
         #~ self.gui_rows[container['Id']]['switch'].get_state()
@@ -177,11 +178,8 @@ class ListBoxSelect:
     def container_delete(self, widget, test,  row, container):
         response = self.confirm_dialog.run()
         if response == Gtk.ResponseType.OK:
-            print('TODO actually remove the container')
-            print container
-            container_iface.container_remove(self.current_container_id.get('Id'), reply_handler=self.container_state_change, error_handler=self.container_state_change)
+            container_iface.container_remove(container.get('Id'), reply_handler=self.container_state_change, error_handler=self.container_state_change)
             self.listbox.remove(row)
-        
         self.confirm_dialog.hide()
         return
 

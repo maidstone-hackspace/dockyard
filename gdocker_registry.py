@@ -3,6 +3,7 @@
 # Remember to make it executable if you want dbus to launch it
 # It works with both Python2 and Python3
 
+import os
 import yaml
 import json
 from gi.repository import Gtk
@@ -36,6 +37,9 @@ class registry_browser():
         self.run_widget_interactive = xml.get_object('run_widget_interactive')
         self.run_widget_terminal = xml.get_object('run_widget_terminal')
         self.run_widget_priviledged = xml.get_object('run_widget_priviledged')
+        self.run_widget_default_configs = xml.get_object('run_widget_default_configs')
+        self.run_widget_default_configs_list = xml.get_object('run_widget_default_configs_list')
+        self.run_widget_default_configs.connect('changed', self.change_config)
         self.run_widget_add_row.connect('button_press_event', self.add_row_to_container)
         self.run_widget_launch.connect('button_press_event', self.run_widget_launcher)
 
@@ -68,7 +72,16 @@ class registry_browser():
         menu_item2 = Gtk.MenuItem("Start Container")
         self.menu.append(menu_item2)
         
+        self.populate_config_dropdown()
         self.update_create_properties_from_config()
+
+    def populate_config_dropdown(self):
+        self.run_widget_default_configs_list.clear()
+        #~ self.run_widget_default_configs_list.append(['Default'])
+        for config in os.listdir('./config'):
+            if config.endswith('.yaml'):
+                self.run_widget_default_configs_list.append([config[:-5]])
+        
 
     def add_row_to_container(self, *args):
         self.run_param_liststore.append([
@@ -85,9 +98,11 @@ class registry_browser():
         self.window.hide()
         return True
 
-    def update_create_properties_from_config(self):
-        with open('config/default.yaml') as fp:
+    def update_create_properties_from_config(self, name='default'):
+        with open('config/%s.yaml' % name) as fp:
             properties = yaml.load(fp)
+
+        self.run_param_liststore.clear()
 
         first_key = properties.keys()[0]
         if type(properties[first_key]) is dict:
@@ -193,6 +208,10 @@ class registry_browser():
     def remove_image(self, widget, skip, name):
         # pass the image requested to the dbus daemon for download and respond to the callback
         container_iface.image_remove(name, reply_handler=self.docker_message_handler, error_handler=self.docker_message_handler)
+
+    def change_config(self, widget):
+        name = self.run_widget_default_configs_list[widget.get_active_iter()][0]
+        self.update_create_properties_from_config(name)
 
     def search_registry(self, widget):
         for row in self.widget_image_list.get_children():
