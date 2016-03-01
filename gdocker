@@ -1,0 +1,11 @@
+#!/bin/bash
+
+cd /usr/local/share/gdocker/
+python gdocker_list.py
+
+
+#~ dbus-send --system --print-reply			\
+	#~ --dest=org.freedesktop.Hal			\
+	#~ /org/freedesktop/Hal/Manager			\
+	#~ org.freedesktop.Hal.Manager.DeviceExists	\
+	#~ string:/org/freedesktop/Hal/devices/computer
