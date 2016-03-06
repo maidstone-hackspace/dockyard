@@ -208,7 +208,5 @@ class ListBoxSelect:
         self.gui_rows = {}
 
     def OpenUri(self, widget, browser, uri):
-        #firefox = '/usr/bin/firefox'
-        #chrome = '/usr/bin/google-chrome'
-
         webbrowser.get(browser).open_new(uri)
+        return
