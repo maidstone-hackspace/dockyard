@@ -7,7 +7,7 @@
 # [SNIPPET_LICENSE: GPL]
 
 
-import subprocess
+import subprocess, webbrowser
 import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('AppIndicator3', '0.1')
@@ -17,6 +17,7 @@ from gi.repository import Notify as notify
 from gdocker_logs import LogWindow
 
 from libs.docker_helper import get_containers, get_container_info, get_container_forwards, container_iface, container_proxy
+from libs.utils import get_firefox, get_chrome
 
 #~ DBusGMainLoop(set_as_default=True)
 #~ #TODO look into GDBus instead of dbus
@@ -99,8 +100,19 @@ class ListBoxSelect:
         items['uri_container'] = glade_row.get_object("uri_container")
         
         for uri in get_container_forwards(container_info):
-            linkbutton = Gtk.LinkButton(uri=uri, label=uri, xalign=0)
-            items['uri_container'].pack_start(linkbutton, False, False, 0)
+            # Container Address
+            addresslabel = Gtk.Label(uri)
+            items['uri_container'].pack_start(addresslabel, False, False, 0)
+
+            # Chrome button
+            chromebutton = Gtk.Button('Chrome')
+            chromebutton.connect("clicked", self.OpenUri, get_chrome(), uri)
+            items['uri_container'].pack_start(chromebutton, False, False, 0)
+
+            # Firefox button
+            firefoxbutton = Gtk.Button('Firefox')
+            firefoxbutton.connect("clicked", self.OpenUri, get_firefox(), uri)
+            items['uri_container'].pack_start(firefoxbutton, False, False, 0)
 
         if container_info['State']['Paused']:
             items['image'].set_from_icon_name("gtk-media-pause", Gtk.IconSize.DIALOG)  # todo: find nice image
@@ -194,3 +206,9 @@ class ListBoxSelect:
         for item in self.gui_rows.values():
             item['row'].destroy()
         self.gui_rows = {}
+
+    def OpenUri(self, widget, browser, uri):
+        #firefox = '/usr/bin/firefox'
+        #chrome = '/usr/bin/google-chrome'
+
+        webbrowser.get(browser).open_new(uri)
