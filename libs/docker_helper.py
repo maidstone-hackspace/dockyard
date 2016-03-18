@@ -34,7 +34,7 @@ DBusGMainLoop(set_as_default=True)
 
 bus = dbus.SessionBus()
 container_proxy = bus.get_object('org.freedesktop.container', '/org/freedesktop/container')
-container_iface = dbus.Interface(container_proxy, dbus_interface='org.freedesktop.container')
+container_iface = dbus.Interface(container_proxy, dbus_interface='org.freedesktop.container2')
 app_name = "Docker"
 
 

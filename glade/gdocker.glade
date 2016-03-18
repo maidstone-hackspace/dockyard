@@ -12,9 +12,9 @@
     <property name="website">https://github.com/maidstone-hackspace/gdocker</property>
     <property name="website_label" translatable="yes">Project Code</property>
     <property name="authors">Oliver Marks
-Sam Collins</property>
+Sam Collins
+James Mannion</property>
     <property name="logo_icon_name">system-run</property>
-    <property name="license_type">gpl-3-0</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="aboutdialog-vbox1">
         <property name="can_focus">False</property>
@@ -48,8 +48,24 @@ Sam Collins</property>
     <property name="can_focus">False</property>
     <property name="stock">gtk-preferences</property>
   </object>
-  <object class="GtkEntryCompletion" id="search_container_completion"/>
-  <object class="GtkWindow" id="root_window">
+  <object class="GtkMenu" id="menu1">
+    <property name="name">root_window_menu</property>
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <child>
+      <object class="GtkImageMenuItem" id="root_window_prefs">
+        <property name="label">gtk-preferences</property>
+        <property name="name">root_window_prefs</property>
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="resize_mode">immediate</property>
+        <property name="use_underline">True</property>
+        <property name="use_stock">True</property>
+        <property name="always_show_image">True</property>
+      </object>
+    </child>
+  </object>
+  <object class="GtkWindow" id="prefs_window">
     <property name="width_request">800</property>
     <property name="height_request">600</property>
     <property name="can_focus">False</property>
@@ -57,11 +73,147 @@ Sam Collins</property>
     <property name="title" translatable="yes">Gnome docker</property>
     <property name="icon">gdocker.svg</property>
     <child>
+      <object class="GtkBox" id="box4">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="homogeneous">True</property>
+        <child>
+          <object class="GtkBox" id="box5">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkBox" id="box7">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="homogeneous">True</property>
+                <child>
+                  <object class="GtkLabel" id="label1">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="opacity">0.96999999999999997</property>
+                    <property name="label" translatable="yes">Select default Browser</property>
+                    <property name="ellipsize">end</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="cmb_prefs_select_browser">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox" id="box8">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="box6">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkMessageDialog" id="dialog_confirm">
+    <property name="can_focus">False</property>
+    <property name="type_hint">dialog</property>
+    <property name="transient_for">prefs_window</property>
+    <property name="message_type">warning</property>
+    <property name="buttons">ok-cancel</property>
+    <property name="text" translatable="yes">Are you sure you want to destroy this container ?</property>
+    <child internal-child="vbox">
+      <object class="GtkBox" id="messagedialog-vbox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox" id="messagedialog-action_area">
+            <property name="can_focus">False</property>
+            <property name="homogeneous">True</property>
+            <property name="layout_style">end</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkEntryCompletion" id="search_container_completion"/>
+  <object class="GtkApplicationWindow" id="root_window">
+    <property name="width_request">800</property>
+    <property name="height_request">600</property>
+    <property name="can_focus">False</property>
+    <property name="vexpand">False</property>
+    <property name="icon_name">computer</property>
+    <child>
       <object class="GtkBox" id="box1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="margin_left">5</property>
-        <property name="margin_right">5</property>
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkBox" id="box3">
@@ -89,8 +241,6 @@ Sam Collins</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="margin_left">5</property>
-                <property name="margin_right">5</property>
                 <property name="use_stock">True</property>
               </object>
               <packing>
@@ -123,10 +273,8 @@ Sam Collins</property>
           </packing>
         </child>
         <child>
-          <object class="GtkProgressBar" id="listProgress">
-            <property name="visible">True</property>
+          <object class="GtkSpinner" id="waiting_container_state">
             <property name="can_focus">False</property>
-            <property name="margin_bottom">4</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -170,7 +318,6 @@ Sam Collins</property>
                 <property name="receives_default">True</property>
                 <property name="margin_top">5</property>
                 <property name="margin_bottom">5</property>
-                <property name="relief">half</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -184,39 +331,6 @@ Sam Collins</property>
             <property name="expand">False</property>
             <property name="fill">True</property>
             <property name="position">3</property>
-          </packing>
-        </child>
-      </object>
-    </child>
-  </object>
-  <object class="GtkMessageDialog" id="dialog_confirm">
-    <property name="can_focus">False</property>
-    <property name="type_hint">dialog</property>
-    <property name="transient_for">root_window</property>
-    <property name="message_type">warning</property>
-    <property name="buttons">ok-cancel</property>
-    <property name="text" translatable="yes">Are you sure you want to destroy this container ?</property>
-    <child internal-child="vbox">
-      <object class="GtkBox" id="messagedialog-vbox">
-        <property name="can_focus">False</property>
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-        <child internal-child="action_area">
-          <object class="GtkButtonBox" id="messagedialog-action_area">
-            <property name="can_focus">False</property>
-            <property name="homogeneous">True</property>
-            <property name="layout_style">end</property>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="position">0</property>
           </packing>
         </child>
       </object>

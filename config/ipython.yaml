@@ -4,21 +4,16 @@ app:
 
     container_name: ipython_container
 
-    hostname: foo
+    hostname: ipython
     privileged: true
     restart: always
     stdin_open: true
     tty: true
 
-    working_dir: /go/src/simple-golang-app
-    command: go run main.go
-
-
     volumes:
-     - /var/lib/mysql
-     - ~/:/root
+     - ~/Documents:/root
 
     expose:
-     - "443:443"
+     - "8888:8888"
 
 

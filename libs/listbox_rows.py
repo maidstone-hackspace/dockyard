@@ -101,8 +101,10 @@ class ListBoxSelect:
         
         for uri in get_container_forwards(container_info):
             # Container Address
-            addresslabel = Gtk.Label(uri)
-            items['uri_container'].pack_start(addresslabel, False, False, 0)
+            linkbutton = Gtk.LinkButton(uri=uri, label=uri, xalign=0)
+            items['uri_container'].pack_start(linkbutton, False, False, 0)
+            #addresslabel = Gtk.Label(uri)
+            #items['uri_container'].pack_start(addresslabel, False, False, 0)
 
             # Chrome button
             chromebutton = Gtk.Button('Chrome')
