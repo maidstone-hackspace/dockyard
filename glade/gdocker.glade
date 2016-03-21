@@ -210,6 +210,7 @@ James Mannion</property>
     <property name="can_focus">False</property>
     <property name="vexpand">False</property>
     <property name="icon_name">computer</property>
+    <property name="show_menubar">False</property>
     <child>
       <object class="GtkBox" id="box1">
         <property name="visible">True</property>
