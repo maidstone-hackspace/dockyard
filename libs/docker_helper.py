@@ -23,24 +23,25 @@ import dbus
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
 
-
-
-
 notify.init(settings.APPINDICATOR_ID)
-
 
 DBusGMainLoop(set_as_default=True)
 #TODO look into GDBus instead of dbus
 
 bus = dbus.SessionBus()
-container_proxy = bus.get_object('org.freedesktop.container', '/org/freedesktop/container')
-container_iface = dbus.Interface(container_proxy, dbus_interface='org.freedesktop.container2')
-app_name = "Docker"
+try:
+    container_proxy = bus.get_object('org.freedesktop.container', '/org/freedesktop/container')
+    container_iface = dbus.Interface(container_proxy, dbus_interface='org.freedesktop.container2')
+except:
+    print("Failed to connect to dbus service, please correct this first.")
+    container_proxy = None
+    container_iface = None
 
+app_name = "Docker"
 
 from docker import Client
 docker_client = Client(base_url='unix://var/run/docker.sock')
-
+print dir(docker_client)
 
 def get_containers(filter=None):
     """return a list of all container, or return a list that matches the filter"""
@@ -99,7 +100,11 @@ def get_registry_images(url, version='v2', search=None):
     print search
     dangling_image = 0
     if version == 'l':
-        results = docker_client.images()
+        try:
+            results = docker_client.images()
+        except requests.exceptions.ConnectionError:
+            results = []
+            print("Docker api not available")
         for item in results:
             labels = item.get('Labels')
             if item.get('RepoTags') == ['<none>:<none>']:

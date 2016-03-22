@@ -38,6 +38,7 @@ class AppWindow(object):
 
         # grab our widget using get_object this is the name of the widget from glade, window1 is the default name
         self.window = interface.get_object('root_window')
+        self.window.set_title('Gdocker Title')
         self.window.set_application(app)
         self.window_prefs = interface.get_object('prefs_window')
         self.window_menu = interface.get_object('root_window_menu')
@@ -66,8 +67,8 @@ class AppWindow(object):
         # connect to events, in this instance just quit our application
         self.window.connect('delete_event', Gtk.main_quit)
         self.window.connect('destroy', lambda quit: Gtk.main_quit())
-
-        container_proxy.connect_to_signal("state_change", self.refresh_list, dbus_interface="org.freedesktop.container")
+        if container_proxy:
+            container_proxy.connect_to_signal("state_change", self.refresh_list, dbus_interface="org.freedesktop.container")
 
         # show the window else there is nothing to see :)
         self.openFetcher()
@@ -122,8 +123,10 @@ class AppWindow(object):
 
 
 class gtkApplication(Gtk.Application):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         Gtk.Application.__init__(self)
+        self.window = None
+
 
     def do_startup(self):
         Gtk.Application.do_startup(self)
@@ -146,11 +149,13 @@ class gtkApplication(Gtk.Application):
         #~ if not self.window:
             # Windows are associated with the application
             # when the last one is closed the application shuts down
-        self.main = AppWindow(self)
-        self.window = self.main.window
+        
+        if not self.window:
+            self.main = AppWindow(self)
+            self.window = self.main.window
         #~ self.window.set_title('GDocker')
-        self.add_window(self.window)
-        self.window.show_all()
+        #~ self.add_window(self.window)
+        #~ self.window.show_all()
         self.window.present()
 
     def add_simple_action(self, name, callback):
