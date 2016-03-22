@@ -32,21 +32,21 @@ class MyApplication(Gtk.Application):
         self.set_app_menu(menu)
 
         # create an action for the option "new" of the menu
-        #~ new_action = Gio.SimpleAction.new("new", None)
+        new_action = Gio.SimpleAction.new("new", None)
         # connect it to the callback function new_cb
-        #~ new_action.connect("activate", self.new_cb)
+        new_action.connect("activate", self.quit_cb)
         # add the action to the application
-        #~ self.add_action(new_action)
+        self.add_action(new_action)
 
         # option "about"
-        #~ about_action = Gio.SimpleAction.new("about", None)
-        #~ about_action.connect("activate", self.about_cb)
-        #~ self.add_action(about_action)
+        about_action = Gio.SimpleAction.new("about", None)
+        about_action.connect("activate", self.quit_cb)
+        self.add_action(about_action)
 
         # option "quit"
-        #~ quit_action = Gio.SimpleAction.new("quit", None)
-        #~ quit_action.connect("activate", self.quit_cb)
-        #~ self.add_action(quit_action)
+        quit_action = Gio.SimpleAction.new("quit", None)
+        quit_action.connect("activate", self.quit_cb)
+        self.add_action(quit_action)
 
 
     # callback function for "quit"

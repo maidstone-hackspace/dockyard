@@ -19,7 +19,7 @@ from settings import APPINDICATOR_ID
 from libs.docker_helper import get_containers, get_container, get_container_info, get_container_forwards, container_iface, container_proxy
 from libs.listbox_rows import ListBoxSelect
 from libs.container_images import image_browser
-from libs.utils import return_browsers
+from libs.utils import return_browsers, test_in_group
 from libs.core import interface
 
 class AppWindow(object):
@@ -38,11 +38,14 @@ class AppWindow(object):
 
         # grab our widget using get_object this is the name of the widget from glade, window1 is the default name
         self.window = interface.get_object('root_window')
-        self.window.set_title('Gdocker Title')
+        self.window.set_title('Dockyard')
         self.window.set_application(app)
+        self.window_about = interface.get_object('aboutdialog1')
         self.window_prefs = interface.get_object('prefs_window')
         self.window_menu = interface.get_object('root_window_menu')
         self.window_menu_prefs = interface.get_object('root_window_prefs')
+
+        self.window_prefs.connect('delete-event', self.hide_window)
 
         # load our widgets from the glade file
         self.widgets = {}
@@ -72,8 +75,12 @@ class AppWindow(object):
 
         # show the window else there is nothing to see :)
         self.openFetcher()
-        self.populate_prefs()
         self.refresh()
+
+    def hide_window(self, widget, *data):
+        self.window_prefs.hide() 
+        return True
+
 
     def populate_prefs(self):
         self.prefs_select_browser = interface.get_object('cmb_prefs_select_browser')
@@ -82,20 +89,6 @@ class AppWindow(object):
             self.prefs_select_browser.append_text(browser)
         self.prefs_select_browser.set_active(0)
         self.window_prefs.show_all()
-
-    #~ def do_startup(self):
-        #~ Gtk.Application.do_startup(self)
-        
-        #~ menu = Gio.Menu()
-        #~ # append to the menu three options
-        #~ menu.append("Prefs", "app.new")
-        #~ menu.append("About", "app.about")
-        #~ menu.append("Quit", "app.quit")
-        #~ self.set_app_menu(menu)
-
-        #~ self.set_menubar(self.window_menu_prefs)
-        
-        #~ self.set_menubar(self.window_menu)
 
     def openFetcher(self):
         self.window.show_all()
@@ -127,35 +120,23 @@ class gtkApplication(Gtk.Application):
         Gtk.Application.__init__(self)
         self.window = None
 
-
     def do_startup(self):
         Gtk.Application.do_startup(self)
 
         menu = Gio.Menu()
-        menu.append("Prefs", "app.new")
+        menu.append("Preferences", "app.preferences")
         menu.append("About", "app.about")
         menu.append("Quit", "app.quit")
         self.set_app_menu(menu)
 
-        #~ self.set_menubar(menu)
-        #~ self.add_simple_action('preferences', self.on_action_preferences_activated)
+        self.add_simple_action('preferences', self.on_action_preferences_activated)
+        self.add_simple_action('about', self.on_action_about_activated)
+        self.add_simple_action('quit', self.on_action_quit_activated)
 
-    def on_action_preferences_activated(self, action, user_data):
-        print('will popup preferences dialog')
-
-        #~ self.set_menubar(self.window_menu)
     def do_activate(self):
-        # We only allow a single window and raise any existing ones
-        #~ if not self.window:
-            # Windows are associated with the application
-            # when the last one is closed the application shuts down
-        
         if not self.window:
             self.main = AppWindow(self)
             self.window = self.main.window
-        #~ self.window.set_title('GDocker')
-        #~ self.add_window(self.window)
-        #~ self.window.show_all()
         self.window.present()
 
     def add_simple_action(self, name, callback):
@@ -163,27 +144,26 @@ class gtkApplication(Gtk.Application):
         action.connect('activate', callback)
         self.add_action(action)
 
-    # callback function for "quit"
-    def quit_cb(self, action, parameter):
-        print("You have quit.")
+    def on_action_preferences_activated(self, action, user_data):
+        self.main.populate_prefs()
+
+    def on_action_about_activated(self, action, user_data):
+        self.main.window_about.show()
+
+    def on_action_quit_activated(self, action, user_data):
+        notify.uninit()
         self.quit()
-
-    def quit(_):
-        notify.uninit()
-        gtk.main_quit()
-
-    def about(_):
-        notify.uninit()
-        gtk.main_quit()
 
 if __name__ == '__main__':
     #~ indicator = appindicator.Indicator.new(APPINDICATOR_ID, 'gdcoker.svg', appindicator.IndicatorCategory.CATEGORY_APPLICATION_STATUS)
     indicator = appindicator.Indicator.new(APPINDICATOR_ID, './images/gdocker.png', appindicator.IndicatorCategory.SYSTEM_SERVICES)
     indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
     indicator.set_attention_icon("new-messages-red")
-    #~ indicator.set_menu(Gtk.Menu())
-        #~ indicator.set_menu(build_menu())
-    notify.Notification.new('Gnome docker', 'Gnome Docker applet launched', None).show()
+    
+    #test the user is in the docker group, bail if not or ignore if not linux
+    test_in_group()
+
+    notify.Notification.new('Dockyard', 'Dockyard applet launched', None).show()
     application = gtkApplication()
     application.run(sys.argv)
-    #~ Gtk.main()
+
