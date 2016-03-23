@@ -8,6 +8,8 @@
 
 import sys
 import gi
+import ConfigParser
+
 #~ gi.require_version('Gtk', '3.0')
 #~ gi.require_version('AppIndicator3', '0.1')
 from gi.repository import Gtk
@@ -31,8 +33,8 @@ class AppWindow(object):
         #~ super(AppWindow, self).__init__(*args, **kwargs)
         #~ Gtk.Application.__init__(self)
         # load in our glade interface
-        interface = Gtk.Builder()
-        interface.add_from_file('glade/gdocker.glade')
+        #~ interface = Gtk.Builder()
+        #~ interface.add_from_file('glade/gdocker.glade')
 
         self.image_browser = image_browser()
 
@@ -61,8 +63,6 @@ class AppWindow(object):
         self.widgets['refresh'] = interface.get_object('btnRefresh')
         self.widgets['message_dialog'] = interface.get_object('dialog_confirm')
         self.widgets['refresh'].connect('button_press_event', self.refresh_list)
-        self.widgets['close'] = interface.get_object('btnClose')
-        self.widgets['close'].connect('button_press_event', self.closeFetcher)
 
         # wrap the listbox so we can reuse the code, pass in the listbox widget to our wrapper class
         self.listbox = ListBoxSelect(self.widgets['listbox'], self.widgets['message_dialog'])
@@ -83,12 +83,24 @@ class AppWindow(object):
 
 
     def populate_prefs(self):
+        config = ConfigParser.SafeConfigParser({
+            'browser': 'firefox',
+            'docker_api_url': 'unix://var/run/docker.sock'
+        })
+        config.read(['dockyard.cfg', os.path.expanduser('~/.dockyard.cfg')])
+        
         self.prefs_select_browser = interface.get_object('cmb_prefs_select_browser')
+        self.prefs_select_browser.clear()
         for browser, path in return_browsers():
             print browser
             self.prefs_select_browser.append_text(browser)
         self.prefs_select_browser.set_active(0)
         self.window_prefs.show_all()
+        
+        config.set('browser', self.prefs_select_browser.get_active_text())
+        # tmp write out prefs
+        
+        
 
     def openFetcher(self):
         self.window.show_all()
@@ -106,9 +118,6 @@ class AppWindow(object):
         for container in get_containers(filter=filter_string):
             container_info = get_container_info(container['Id'])
             self.listbox.list_containers(container, container_info)
-
-    def closeFetcher(self, widget):
-        self.window.hide()
 
     def show_image_list(self, widget, *args):
         print 'show()'
