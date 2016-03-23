@@ -6,7 +6,9 @@ import commands
 
 BROWSERS = (
     'firefox',
-    'chrome'
+    'chromium-browser',
+    'epiphany-browser',
+    'google-chrome'
 )
 
 def get_firefox():

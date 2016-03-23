@@ -1,15 +1,15 @@
 [Desktop Entry]
 Version=1.0
-Name=GDocker
+Name=Dockyard
 GenericName=GTK Docker GUI
 X-GNOME-FullName=GTK Docker GUI
 Comment=GTK Frontend for managing docker containers locally
 Type=Application
 Categories=GTK;GNOME;Utility;
 Exec=gdocker %F
-TryExec=gdocker
+TryExec=dockyard
 Terminal=false
 StartupNotify=true
-Icon=gdocker
-X-Ubuntu-Gettext-Domain=GDocker
+Icon=dockyard
+X-Ubuntu-Gettext-Domain=Dockyard
 DBusActivatable=true

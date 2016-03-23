@@ -1,11 +1,6 @@
 #!/usr/bin/env python
-# [SNIPPET_NAME: gtk3 listbox example]
-# [SNIPPET_CATEGORIES: opengl]
-# [SNIPPET_TAGS: touch, gtk3]
-# [SNIPPET_DESCRIPTION: add rows to a listbox based on retrieved interface file]
-# [SNIPPET_AUTHOR: Oliver Marks ]
-# [SNIPPET_LICENSE: GPL]
 
+import os
 import sys
 import gi
 import ConfigParser
@@ -30,16 +25,11 @@ class AppWindow(object):
     retrieve_job = None
 
     def __init__(self, app):
-        #~ super(AppWindow, self).__init__(*args, **kwargs)
-        #~ Gtk.Application.__init__(self)
-        # load in our glade interface
-        #~ interface = Gtk.Builder()
-        #~ interface.add_from_file('glade/gdocker.glade')
-
         self.image_browser = image_browser()
 
         # grab our widget using get_object this is the name of the widget from glade, window1 is the default name
         self.window = interface.get_object('root_window')
+        self.window.set_wmclass ('Dockyard', 'Dockyard')
         self.window.set_title('Dockyard')
         self.window.set_application(app)
         self.window_about = interface.get_object('aboutdialog1')
@@ -77,30 +67,41 @@ class AppWindow(object):
         self.openFetcher()
         self.refresh()
 
+    def preferences_closed(self, widget, *data):
+        self.window_prefs.hide() 
+
     def hide_window(self, widget, *data):
         self.window_prefs.hide() 
         return True
 
 
     def populate_prefs(self):
+        filename = os.path.expanduser('~/.dockyard.cfg')
         config = ConfigParser.SafeConfigParser({
             'browser': 'firefox',
             'docker_api_url': 'unix://var/run/docker.sock'
         })
         config.read(['dockyard.cfg', os.path.expanduser('~/.dockyard.cfg')])
-        
+        if not config.has_section('settings'):
+            config.add_section('settings')
+
+
         self.prefs_select_browser = interface.get_object('cmb_prefs_select_browser')
-        self.prefs_select_browser.clear()
+        model = self.prefs_select_browser.get_model()
+        model.clear()
         for browser, path in return_browsers():
-            print browser
             self.prefs_select_browser.append_text(browser)
         self.prefs_select_browser.set_active(0)
         self.window_prefs.show_all()
         
-        config.set('browser', self.prefs_select_browser.get_active_text())
+        browser = self.prefs_select_browser.get_active() or 'firefox'
+
+        config.set('settings', 'browser', browser)
         # tmp write out prefs
+        with open(filename, 'wb') as configfile:
+            config.write(configfile)
         
-        
+
 
     def openFetcher(self):
         self.window.show_all()
