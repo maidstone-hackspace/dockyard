@@ -100,8 +100,6 @@ class AppWindow(object):
         # tmp write out prefs
         with open(filename, 'wb') as configfile:
             config.write(configfile)
-        
-
 
     def openFetcher(self):
         self.window.show_all()

@@ -106,16 +106,6 @@ class ListBoxSelect:
             #addresslabel = Gtk.Label(uri)
             #items['uri_container'].pack_start(addresslabel, False, False, 0)
 
-            # Chrome button
-            chromebutton = Gtk.Button('Chrome')
-            chromebutton.connect("clicked", self.OpenUri, get_chrome(), uri)
-            items['uri_container'].pack_start(chromebutton, False, False, 0)
-
-            # Firefox button
-            firefoxbutton = Gtk.Button('Firefox')
-            firefoxbutton.connect("clicked", self.OpenUri, get_firefox(), uri)
-            items['uri_container'].pack_start(firefoxbutton, False, False, 0)
-
         if container_info['State']['Paused']:
             items['image'].set_from_icon_name("gtk-media-pause", Gtk.IconSize.DIALOG)  # todo: find nice image
         elif container_info['State']['Running']:

@@ -31,7 +31,7 @@ DBusGMainLoop(set_as_default=True)
 bus = dbus.SessionBus()
 try:
     container_proxy = bus.get_object('org.freedesktop.container', '/org/freedesktop/container')
-    container_iface = dbus.Interface(container_proxy, dbus_interface='org.freedesktop.container2')
+    container_iface = dbus.Interface(container_proxy, dbus_interface='org.freedesktop.container')
 except:
     print("Failed to connect to dbus service, please correct this first.")
     container_proxy = None
