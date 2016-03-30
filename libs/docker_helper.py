@@ -63,7 +63,7 @@ def get_container_info(container_id):
 
 def get_container_logs(container_id, time):
     #since=time is not in docker-py 1.3 which is packaged 
-    return docker_client.logs(container=get_container(container_id), timestamps=True)
+    return docker_client.logs(container=get_container(container_id), timestamps=True, since=time)
 
 
 def get_container_forwards(container_info):
