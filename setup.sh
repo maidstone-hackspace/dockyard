@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cp dockyard.desktop /usr/share/applications/
+cp ./dockyard.desktop /usr/share/applications/
 
 cp images/24x24/dockyard.png /usr/share/icons/gnome/24x24/apps/
 cp images/32x32/dockyard.png /usr/share/icons/gnome/32x32/apps/
