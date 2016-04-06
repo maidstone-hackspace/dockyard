@@ -2,7 +2,7 @@ app:
     build: .
     image: buildozer
 
-    container_name: gdocker_example_container
+    container_name: dockyard_example_container
 
     hostname: foo
     privileged: true

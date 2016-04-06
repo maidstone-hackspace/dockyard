@@ -178,6 +178,17 @@
               </packing>
             </child>
             <child>
+              <object class="GtkFileChooserButton" id="filechooserbutton1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkEntry" id="run_widget_param1">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -188,7 +199,7 @@
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">1</property>
+                <property name="position">2</property>
               </packing>
             </child>
             <child>
@@ -200,7 +211,7 @@
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">2</property>
+                <property name="position">3</property>
               </packing>
             </child>
             <child>
@@ -209,13 +220,12 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="margin_left">5</property>
                 <property name="use_stock">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">3</property>
+                <property name="position">4</property>
               </packing>
             </child>
           </object>

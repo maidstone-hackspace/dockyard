@@ -30,7 +30,7 @@
     <property name="can_focus">False</property>
     <property name="vexpand">True</property>
     <property name="title" translatable="yes">Gnome docker</property>
-    <property name="icon">gdocker.svg</property>
+    <property name="icon">dockyard.svg</property>
     <child>
       <object class="GtkBox" id="box4">
         <property name="visible">True</property>
@@ -283,7 +283,7 @@
 Sam Collins
 Andrew pepin
 James Mannion</property>
-    <property name="logo">gdocker.png</property>
+    <property name="logo">dockyard.png</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="aboutdialog-vbox1">
         <property name="can_focus">False</property>

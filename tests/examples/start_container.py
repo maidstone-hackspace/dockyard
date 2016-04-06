@@ -31,6 +31,6 @@ def container_create(container_params):
     return 'finished'
 
 
-test = {u'command': u'/bin/bash', u'tty': True, u'name': u'gdocker_example_container', u'image': u'buildozer', u'hostname': u'', u'environment': [], u'command': u'', u'volumes': [u'/var/lib/mysql:', u'~/:/root'], u'volumes_from': [], u'detach': False, u'ports': [u'3000:', u'8000:']}
+test = {u'command': u'/bin/bash', u'tty': True, u'name': u'dockyard_example_container', u'image': u'buildozer', u'hostname': u'', u'environment': [], u'command': u'', u'volumes': [u'/var/lib/mysql:', u'~/:/root'], u'volumes_from': [], u'detach': False, u'ports': [u'3000:', u'8000:']}
 
 container_create(test)

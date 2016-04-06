@@ -1,7 +1,7 @@
 #!/bin/bash
 
 cd /usr/local/share/gdocker/
-python gdocker_daemon.py
+python dockyard_daemon.py
 
 
 #~ dbus-send --system --print-reply			\

@@ -14,7 +14,7 @@ gi.require_version('AppIndicator3', '0.1')
 from gi.repository import Gtk
 from gi.repository import Notify as notify
 
-from gdocker_logs import LogWindow
+from dockyard_logs import LogWindow
 
 from libs.docker_helper import get_containers, get_container_info, get_container_forwards, container_iface, container_proxy
 from libs.utils import get_firefox, get_chrome
@@ -125,7 +125,7 @@ class ListBoxSelect:
         self.gui_rows[container['Id']] = items
 
     def show_logs(self, container):
-        logs = gdocker_logs.LogWindow()
+        logs = dockyard_logs.LogWindow()
         logs.show_logs(container)
 
     def is_container_running(self, container):

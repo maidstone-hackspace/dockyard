@@ -17,7 +17,6 @@ gi.require_version('AppIndicator3', '0.1')
 from gi.repository import Gtk, GLib, Gdk, GdkPixbuf
 from gi.repository import Notify as notify
 import settings
-##import gdocker_logs
 
 import dbus
 import dbus.service
