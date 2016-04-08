@@ -41,14 +41,23 @@ class LogWindow:
         #~ for line in get_container_logs(self.container_id, self.lastChecked).split("\n"):
             #~ date = datetime.datetime(line[0:30])
             #~ print date
-            
-        print get_container_logs(self.container_id, self.lastChecked)
-        #buffer = self.text_area.get_buffer()
+        
+        log_data = get_container_logs(self.container_id, self.lastChecked)
+        self.lastChecked = datetime.datetime.now()
+
+        last_timestamp = None
+        for line in log_data.split("\n"):
+            timestamp = line[0:line.find(' ')]
+            print '-----'
+            print timestamp
+            last_timestamp = timestamp
+        print(log_data)
+        text_buffer = self.text_area.get_buffer()
+        end_iter = text_buffer.get_end_iter()
+        text_buffer.insert(end_iter, log_data)
         #~ buffer.insert_at_cursor(get_container_logs(self.container_id, self.lastChecked), -1)
         #buffer.set_text(get_container_logs(self.container_id, self.lastChecked))
-        
-        self.lastChecked = datetime.datetime.now()
-        print self.lastChecked
-        #self.text_area.set_buffer(buffer)
+        if timestamp:
+            self.lastChecked = timestamp
         return True
         

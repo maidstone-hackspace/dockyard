@@ -29,6 +29,7 @@ class image_browser():
         self.run_param_liststore = xml.get_object('run_widget_liststore')
         self.run_widget_launch = xml.get_object('run_widget_launch')
         self.run_widget_add_row = xml.get_object('run_widget_add_row')
+        self.file_chooser_volumes = xml.get_object('file_chooseer_volumes')
         self.run_widget_add_row_param_type = xml.get_object('run_widget_param_type')
         self.run_widget_add_param1 = xml.get_object('run_widget_param1')
         self.run_widget_add_param2 = xml.get_object('run_widget_param2')

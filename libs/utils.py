@@ -23,14 +23,14 @@ def return_browsers():
         if code is 0:
             yield browser, path
 
-def test_in_group():
+def test_in_group(group='docker'):
     if  platform.system() == 'Linux':
         match = False
         for g in os.getgroups():
-            if grp.getgrgid(g).gr_name == 'docker':
+            if grp.getgrgid(g).gr_name == group:
                 match = True
         if match is False:
-            print('User not in the docker group')
+            print('User not in the docker group consider runing the below command using your username to fix this issue\n\tusermod -aG docker USERNAME')
             sys.exit(1)
     return True
     

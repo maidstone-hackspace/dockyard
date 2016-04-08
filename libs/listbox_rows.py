@@ -179,6 +179,9 @@ class ListBoxSelect:
 
     def container_delete(self, widget, test,  row, container):
         response = self.confirm_dialog.run()
+        if container_iface is None:
+            print('Dockyard daemon is not running, container not removed')
+            return
         if response == Gtk.ResponseType.OK:
             container_iface.container_remove(container.get('Id'), reply_handler=self.container_state_change, error_handler=self.container_state_change)
             self.listbox.remove(row)
