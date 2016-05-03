@@ -1,4 +1,4 @@
-Dockyard
+![Dockyard](https://cloud.githubusercontent.com/assets/2915723/14226460/b62db966-f8da-11e5-935e-d30778cda068.jpg)
 -------
 [![Code Climate](https://codeclimate.com/github/maidstone-hackspace/gdocker/badges/gpa.svg)](https://codeclimate.com/github/maidstone-hackspace/dockyard)
 
