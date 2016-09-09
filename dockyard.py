@@ -50,9 +50,9 @@ class AppWindow(object):
         self.widgets['searchentry'].connect('changed', self.refresh_list)
         self.widgets['listbox'] = interface.get_object('listbox1')
         self.widgets['progress'] = interface.get_object('listProgress')
-        self.widgets['refresh'] = interface.get_object('btnRefresh')
+        #~ self.widgets['refresh'] = interface.get_object('btnRefresh')
         self.widgets['message_dialog'] = interface.get_object('dialog_confirm')
-        self.widgets['refresh'].connect('button_press_event', self.refresh_list)
+        #~ self.widgets['refresh'].connect('button_press_event', self.refresh_list)
 
         # wrap the listbox so we can reuse the code, pass in the listbox widget to our wrapper class
         self.listbox = ListBoxSelect(self.widgets['listbox'], self.widgets['message_dialog'])

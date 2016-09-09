@@ -1,0 +1,13 @@
+name: dockyard # the name of the snap
+version: 0.1 # the version of the snap
+summary: Dockyard GTK frontend # 79 char long summary
+description: Frontend to allow youto stop start and launch container and notify you of there state changes # A longer description for the snap
+icon: images/128x128/dockyard.png # A path to an icon for the package - this is optional.
+
+parts:
+  dockyard:
+    plugin: python3
+    source: git://github.com/maidstone-hackspace/dockyard.git
+    stage-packages:
+        - python-glib
+        - python-gi

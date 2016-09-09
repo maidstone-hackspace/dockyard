@@ -1,0 +1,11 @@
+[Application]
+name=org.digitaloctave.Dockyard
+runtime=org.gnome.Platform/x86_64/3.20
+sdk=org.gnome.Sdk/x86_64/3.20
+command=dockyard
+
+[Context]
+shared=network, ipc;
+sockets=x11;
+device=dri;
+
